@@ -29,7 +29,7 @@ class TeamController extends Controller
         ]);
 
         return redirect()
-            ->route('teams.index')
+            ->route('teams')
             ->with('success', 'Team added successfully!');
     }
 
@@ -39,7 +39,7 @@ class TeamController extends Controller
         $team->delete();
 
         return redirect()
-            ->route('teams.index')
+            ->route('teams')
             ->with('success', 'Team deleted successfully!');
     }
 }

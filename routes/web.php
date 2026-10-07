@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\TeamController;
 use App\Http\Controllers\PlayerController;
+use App\Http\Controllers\FootballMatchController;
 
 Route::get('/', [HomeController::class, 'index'])
     ->name('home');
@@ -30,8 +31,13 @@ Route::delete('/players/{player}', [PlayerController::class, 'destroy'])
     ->name('players.destroy');
 
 
-// MATCHES
+// MATCH ROUTES
 
-Route::get('/matches', function () {
-    return view('matches');
-})->name('matches');
+Route::get('/matches', [FootballMatchController::class, 'index'])
+    ->name('matches');
+
+Route::post('/matches', [FootballMatchController::class, 'store'])
+    ->name('matches.store');
+
+Route::delete('/matches/{footballMatch}', [FootballMatchController::class, 'destroy'])
+    ->name('matches.destroy');
