@@ -266,7 +266,11 @@
                                     {{ $match->status }}
                                 </span>
                             </p>
-
+<!-- Edit Match -->
+<a href="{{ route('matches.edit', $match) }}"
+   class="btn btn-primary me-2">
+    Edit
+</a>
 
                             <!-- Delete Match -->
                             <form

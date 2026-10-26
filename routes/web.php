@@ -41,3 +41,9 @@ Route::post('/matches', [FootballMatchController::class, 'store'])
 
 Route::delete('/matches/{footballMatch}', [FootballMatchController::class, 'destroy'])
     ->name('matches.destroy');
+
+Route::get('/matches/{footballMatch}/edit', [FootballMatchController::class, 'edit'])
+    ->name('matches.edit');
+
+Route::put('/matches/{footballMatch}', [FootballMatchController::class, 'update'])
+    ->name('matches.update');

@@ -36,6 +36,30 @@ class FootballMatchController extends Controller
             ->with('success', 'Match added successfully!');
     }
 
+    public function edit(FootballMatch $footballMatch)
+    {
+        $teams = Team::orderBy('name')->get();
+
+        return view('matches.edit', compact('footballMatch', 'teams'));
+    }
+
+    public function update(Request $request, FootballMatch $footballMatch)
+    {
+        $validated = $request->validate([
+            'home_team_id' => 'required|exists:teams,id|different:away_team_id',
+            'away_team_id' => 'required|exists:teams,id',
+            'match_date' => 'required|date',
+            'venue' => 'required|string|max:255',
+            'status' => 'required|string|max:50',
+        ]);
+
+        $footballMatch->update($validated);
+
+        return redirect()
+            ->route('matches')
+            ->with('success', 'Match updated successfully!');
+    }
+
     public function destroy(FootballMatch $footballMatch)
     {
         $footballMatch->delete();
