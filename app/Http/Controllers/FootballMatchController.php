@@ -27,6 +27,8 @@ class FootballMatchController extends Controller
             'match_date' => 'required|date',
             'venue' => 'required|string|max:255',
             'status' => 'required|string|max:50',
+            'home_score' => 'nullable|integer|min:0',
+            'away_score' => 'nullable|integer|min:0',
         ]);
 
         FootballMatch::create($validated);
@@ -51,6 +53,8 @@ class FootballMatchController extends Controller
             'match_date' => 'required|date',
             'venue' => 'required|string|max:255',
             'status' => 'required|string|max:50',
+            'home_score' => 'nullable|integer|min:0',
+            'away_score' => 'nullable|integer|min:0',
         ]);
 
         $footballMatch->update($validated);

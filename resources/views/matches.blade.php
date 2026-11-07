@@ -1,10 +1,11 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Football Matches</title>
+    <title>Football Matches - Football Hub</title>
 
     <link
         href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
@@ -32,7 +33,6 @@
         </div>
     </nav>
 
-
     <!-- Main Content -->
     <div class="container py-5">
 
@@ -43,10 +43,9 @@
             </h1>
 
             <p class="lead text-muted">
-                Manage football matches and their teams.
+                Manage football matches, scores and results.
             </p>
         </div>
-
 
         <!-- Success Message -->
         @if(session('success'))
@@ -54,7 +53,6 @@
                 {{ session('success') }}
             </div>
         @endif
-
 
         <!-- Validation Errors -->
         @if($errors->any())
@@ -66,7 +64,6 @@
                 </ul>
             </div>
         @endif
-
 
         <!-- Add New Match -->
         <div class="card shadow-sm mb-5">
@@ -80,7 +77,6 @@
             <div class="card-body">
 
                 <form action="{{ route('matches.store') }}" method="POST">
-
                     @csrf
 
                     <div class="row g-3">
@@ -100,14 +96,15 @@
                                 <option value="">Select Home Team</option>
 
                                 @foreach($teams as $team)
-                                    <option value="{{ $team->id }}">
+                                    <option
+                                        value="{{ $team->id }}"
+                                        {{ old('home_team_id') == $team->id ? 'selected' : '' }}
+                                    >
                                         {{ $team->name }}
                                     </option>
                                 @endforeach
-
                             </select>
                         </div>
-
 
                         <!-- Away Team -->
                         <div class="col-md-6">
@@ -124,14 +121,15 @@
                                 <option value="">Select Away Team</option>
 
                                 @foreach($teams as $team)
-                                    <option value="{{ $team->id }}">
+                                    <option
+                                        value="{{ $team->id }}"
+                                        {{ old('away_team_id') == $team->id ? 'selected' : '' }}
+                                    >
                                         {{ $team->name }}
                                     </option>
                                 @endforeach
-
                             </select>
                         </div>
-
 
                         <!-- Match Date -->
                         <div class="col-md-4">
@@ -144,10 +142,10 @@
                                 name="match_date"
                                 id="match_date"
                                 class="form-control"
+                                value="{{ old('match_date') }}"
                                 required
                             >
                         </div>
-
 
                         <!-- Venue -->
                         <div class="col-md-4">
@@ -160,11 +158,11 @@
                                 name="venue"
                                 id="venue"
                                 class="form-control"
+                                value="{{ old('venue') }}"
                                 placeholder="Enter venue"
                                 required
                             >
                         </div>
-
 
                         <!-- Status -->
                         <div class="col-md-4">
@@ -178,24 +176,50 @@
                                 class="form-select"
                                 required
                             >
-                                <option value="Scheduled">
-                                    Scheduled
-                                </option>
-
-                                <option value="Completed">
-                                    Completed
-                                </option>
-
-                                <option value="Postponed">
-                                    Postponed
-                                </option>
-
-                                <option value="Cancelled">
-                                    Cancelled
-                                </option>
+                                @foreach(['Scheduled', 'Completed', 'Postponed', 'Cancelled'] as $status)
+                                    <option
+                                        value="{{ $status }}"
+                                        {{ old('status', 'Scheduled') == $status ? 'selected' : '' }}
+                                    >
+                                        {{ $status }}
+                                    </option>
+                                @endforeach
                             </select>
                         </div>
 
+                        <!-- Home Team Score -->
+                        <div class="col-md-6">
+                            <label for="home_score" class="form-label">
+                                Home Team Score
+                            </label>
+
+                            <input
+                                type="number"
+                                name="home_score"
+                                id="home_score"
+                                class="form-control"
+                                min="0"
+                                value="{{ old('home_score') }}"
+                                placeholder="Enter home team score"
+                            >
+                        </div>
+
+                        <!-- Away Team Score -->
+                        <div class="col-md-6">
+                            <label for="away_score" class="form-label">
+                                Away Team Score
+                            </label>
+
+                            <input
+                                type="number"
+                                name="away_score"
+                                id="away_score"
+                                class="form-control"
+                                min="0"
+                                value="{{ old('away_score') }}"
+                                placeholder="Enter away team score"
+                            >
+                        </div>
 
                         <!-- Submit -->
                         <div class="col-12">
@@ -208,12 +232,10 @@
                         </div>
 
                     </div>
-
                 </form>
 
             </div>
         </div>
-
 
         <!-- Matches List -->
         <div class="row g-4">
@@ -226,29 +248,51 @@
 
                         <div class="card-body text-center">
 
+                            <!-- Teams -->
                             <h3 class="h5 text-primary fw-bold">
                                 {{ $match->homeTeam->name }}
                                 <span class="text-muted">vs</span>
                                 {{ $match->awayTeam->name }}
                             </h3>
 
+                            <!-- Match Score -->
+                            @if($match->home_score !== null && $match->away_score !== null)
+
+                                <h2 class="fw-bold text-success my-3">
+                                    {{ $match->home_score }}
+                                    -
+                                    {{ $match->away_score }}
+                                </h2>
+
+                            @else
+
+                                <p class="text-muted my-3">
+                                    Score not available yet
+                                </p>
+
+                            @endif
+
                             <hr>
 
+                            <!-- Date -->
                             <p class="mb-2">
                                 <strong>Date:</strong>
                                 {{ \Carbon\Carbon::parse($match->match_date)->format('d F Y') }}
                             </p>
 
+                            <!-- Time -->
                             <p class="mb-2">
                                 <strong>Time:</strong>
                                 {{ \Carbon\Carbon::parse($match->match_date)->format('H:i') }}
                             </p>
 
+                            <!-- Venue -->
                             <p class="mb-2">
                                 <strong>Venue:</strong>
                                 {{ $match->venue }}
                             </p>
 
+                            <!-- Status -->
                             <p class="mb-3">
                                 <strong>Status:</strong>
 
@@ -266,45 +310,45 @@
                                     {{ $match->status }}
                                 </span>
                             </p>
-<!-- Edit Match -->
-<a href="{{ route('matches.edit', $match) }}"
-   class="btn btn-primary me-2">
-    Edit
-</a>
 
-                            <!-- Delete Match -->
-                            <form
-                                action="{{ route('matches.destroy', $match) }}"
-                                method="POST"
-                            >
+                            <!-- Edit and Delete Buttons -->
+                            <div class="d-flex justify-content-center gap-2">
 
-                                @csrf
-                                @method('DELETE')
-
-                                <button
-                                    type="submit"
-                                    class="btn btn-danger"
-                                    onclick="return confirm('Are you sure you want to delete this match?')"
+                                <a
+                                    href="{{ route('matches.edit', $match) }}"
+                                    class="btn btn-primary btn-sm"
                                 >
-                                    Delete
-                                </button>
+                                    Edit
+                                </a>
 
-                            </form>
+                                <form
+                                    action="{{ route('matches.destroy', $match) }}"
+                                    method="POST"
+                                    onsubmit="return confirm('Are you sure you want to delete this match?')"
+                                >
+                                    @csrf
+                                    @method('DELETE')
+
+                                    <button
+                                        type="submit"
+                                        class="btn btn-danger btn-sm"
+                                    >
+                                        Delete
+                                    </button>
+                                </form>
+
+                            </div>
 
                         </div>
-
                     </div>
-
                 </div>
 
             @empty
 
                 <div class="col-12">
-
                     <div class="alert alert-info text-center">
                         No matches have been added yet.
                     </div>
-
                 </div>
 
             @endforelse

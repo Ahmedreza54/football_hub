@@ -15,6 +15,8 @@ class FootballMatch extends Model
         'match_date',
         'venue',
         'status',
+        'home_score',
+        'away_score',
     ];
 
     public function homeTeam()
