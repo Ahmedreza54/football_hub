@@ -1,3 +1,4 @@
+
 <?php
 
 use Illuminate\Support\Facades\Route;
@@ -5,9 +6,13 @@ use App\Http\Controllers\HomeController;
 use App\Http\Controllers\TeamController;
 use App\Http\Controllers\PlayerController;
 use App\Http\Controllers\FootballMatchController;
+use App\Http\Controllers\LeagueTableController;
 
 Route::get('/', [HomeController::class, 'index'])
     ->name('home');
+
+
+// TEAM ROUTES
 
 Route::get('/teams', [TeamController::class, 'index'])
     ->name('teams');
@@ -47,3 +52,9 @@ Route::get('/matches/{footballMatch}/edit', [FootballMatchController::class, 'ed
 
 Route::put('/matches/{footballMatch}', [FootballMatchController::class, 'update'])
     ->name('matches.update');
+
+
+// LEAGUE TABLE ROUTE
+
+Route::get('/league-table', [LeagueTableController::class, 'index'])
+    ->name('league-table');

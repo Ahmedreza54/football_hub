@@ -59,7 +59,8 @@
         }
 
         .cards {
-            display: flex;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
             gap: 20px;
             margin-top: 25px;
         }
@@ -67,13 +68,23 @@
         .card {
             background: white;
             padding: 25px;
-            flex: 1;
             border-radius: 10px;
             text-align: center;
         }
 
         .card h3 {
             color: #16a34a;
+        }
+
+        .card a {
+            color: #2563eb;
+            font-weight: bold;
+            text-decoration: none;
+        }
+
+        .card a:hover {
+            color: #16a34a;
+            text-decoration: underline;
         }
 
         .fixtures-section {
@@ -134,9 +145,15 @@
             text-align: center;
         }
 
-        @media (max-width: 700px) {
+        @media (max-width: 900px) {
             .cards {
-                flex-direction: column;
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 600px) {
+            .cards {
+                grid-template-columns: 1fr;
             }
 
             nav a {
@@ -163,6 +180,7 @@
         <a href="{{ route('teams') }}">Teams</a>
         <a href="{{ route('players') }}">Players</a>
         <a href="{{ route('matches') }}">Matches</a>
+        <a href="{{ route('league-table') }}">League Table</a>
         <a href="#">News</a>
     </nav>
 
@@ -193,6 +211,12 @@
                 <h3>Matches</h3>
                 <p>Check upcoming and previous football matches.</p>
                 <a href="{{ route('matches') }}">View Matches</a>
+            </div>
+
+            <div class="card">
+                <h3>League Table</h3>
+                <p>View team standings, points and goal difference.</p>
+                <a href="{{ route('league-table') }}">View League Table</a>
             </div>
 
         </div>
