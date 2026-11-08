@@ -34,5 +34,9 @@ return [
             'channel' => env('SLACK_BOT_USER_DEFAULT_CHANNEL'),
         ],
     ],
+        'football' => [
+        'key' => env('API_FOOTBALL_KEY'),
+        'base_url' => env('API_FOOTBALL_BASE_URL'),
+    ],
 
 ];

@@ -2,10 +2,21 @@
 
 namespace App\Http\Controllers;
 
+use App\Services\FootballApiService;
+
 class HomeController extends Controller
 {
-    public function index()
+    public function index(FootballApiService $footballApi)
     {
-        return view('home');
+        $apiResponse = $footballApi->get('fixtures', [
+            'date' => now('Europe/London')->toDateString(),
+            'timezone' => 'Europe/London',
+        ]);
+
+        $fixtures = $apiResponse->successful()
+            ? $apiResponse->json('response', [])
+            : [];
+
+        return view('home', compact('fixtures'));
     }
 }
