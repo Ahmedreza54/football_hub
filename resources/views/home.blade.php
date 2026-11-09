@@ -16,6 +16,7 @@
             font-family: Arial, sans-serif;
             margin: 0;
             background-color: #f4f4f4;
+            color: #111827;
         }
 
         header {
@@ -63,6 +64,68 @@
             color: #111827;
             margin-top: 35px;
             margin-bottom: 20px;
+        }
+
+        /* Search section */
+
+        .search-section {
+            background: white;
+            padding: 25px;
+            margin-top: 25px;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+
+        .search-form {
+            display: flex;
+            gap: 10px;
+            max-width: 650px;
+            margin: 20px auto;
+        }
+
+        .search-form input {
+            flex: 1;
+            min-width: 0;
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 16px;
+        }
+
+        .search-form button {
+            padding: 12px 22px;
+            border: none;
+            border-radius: 6px;
+            background: #16a34a;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .search-form button:hover {
+            background: #15803d;
+        }
+
+        .search-result {
+            background: #f9fafb;
+            padding: 15px;
+            border-radius: 6px;
+            margin: 10px 0;
+        }
+
+        .search-result a {
+            color: #2563eb;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .search-result a:hover {
+            text-decoration: underline;
+        }
+
+        .search-results-heading {
+            margin-top: 20px;
+            color: #111827;
         }
 
         /* Dashboard statistics */
@@ -242,6 +305,10 @@
             .fixture-teams {
                 flex-direction: column;
             }
+
+            .search-form {
+                flex-direction: column;
+            }
         }
     </style>
 </head>
@@ -268,10 +335,96 @@
 
         <div class="welcome">
             <h2>Welcome to Football Hub</h2>
+
             <p>
                 Find football teams, players, matches and the latest football information.
             </p>
         </div>
+
+        <!-- Search Teams and Players -->
+
+        <section class="search-section">
+
+            <h2 class="section-title" style="margin-top: 0;">
+                Search Football Hub
+            </h2>
+
+            <form action="{{ route('home') }}" method="GET" class="search-form">
+
+                <input
+                    type="search"
+                    name="search"
+                    placeholder="Search for a team or player..."
+                    value="{{ $search }}"
+                    aria-label="Search teams and players"
+                >
+
+                <button type="submit">Search</button>
+
+            </form>
+
+            @if($search !== '')
+
+                <h3 class="search-results-heading">
+                    Search results for "{{ $search }}"
+                </h3>
+
+                @if($teamResults->isEmpty() && $playerResults->isEmpty())
+
+                    <div class="empty-message">
+                        No teams or players found. Please try another search.
+                    </div>
+
+                @endif
+
+                @foreach($teamResults as $team)
+
+                    <div class="search-result">
+
+                        <strong>Team:</strong>
+                        {{ $team->name }}
+
+                        @if($team->country)
+                            — {{ $team->country }}
+                        @endif
+
+                        <br>
+
+                        <a href="{{ route('teams') }}">
+                            View Teams
+                        </a>
+
+                    </div>
+
+                @endforeach
+
+                @foreach($playerResults as $player)
+
+                    <div class="search-result">
+
+                        <strong>Player:</strong>
+                        {{ $player->name }}
+
+                        — {{ $player->position }}
+
+                        @if($player->team)
+                            <br>
+                            <small>Team: {{ $player->team->name }}</small>
+                        @endif
+
+                        <br>
+
+                        <a href="{{ route('players') }}">
+                            View Players
+                        </a>
+
+                    </div>
+
+                @endforeach
+
+            @endif
+
+        </section>
 
         <!-- Dashboard statistics -->
 
@@ -333,9 +486,11 @@
 
         </div>
 
-        <!-- Live matches -->
+        <!-- Football API fixtures -->
 
         <section class="fixtures-section">
+
+            <!-- Live matches -->
 
             <h2>Live Matches</h2>
 
@@ -345,6 +500,7 @@
 
                     <div class="fixture-league">
                         {{ data_get($fixture, 'league.name', 'Football Match') }}
+
                         <span class="match-badge live-badge">LIVE</span>
                     </div>
 
@@ -367,11 +523,13 @@
                     </div>
 
                     <div class="fixture-status">
+
                         {{ data_get($fixture, 'fixture.status.long', 'In Progress') }}
 
                         @if(data_get($fixture, 'fixture.status.elapsed') !== null)
                             ({{ data_get($fixture, 'fixture.status.elapsed') }}')
                         @endif
+
                     </div>
 
                 </div>
@@ -384,7 +542,6 @@
 
             @endforelse
 
-
             <!-- Upcoming matches -->
 
             <h2>Upcoming Matches</h2>
@@ -395,6 +552,7 @@
 
                     <div class="fixture-league">
                         {{ data_get($fixture, 'league.name', 'Football Match') }}
+
                         <span class="match-badge upcoming-badge">UPCOMING</span>
                     </div>
 
@@ -413,9 +571,11 @@
                     </div>
 
                     <div class="fixture-status">
+
                         {{ \Illuminate\Support\Carbon::parse(data_get($fixture, 'fixture.date'))
                             ->setTimezone('Europe/London')
                             ->format('d M Y, H:i') }}
+
                     </div>
 
                 </div>
@@ -428,7 +588,6 @@
 
             @endforelse
 
-
             <!-- Finished matches -->
 
             <h2>Finished Matches</h2>
@@ -439,6 +598,7 @@
 
                     <div class="fixture-league">
                         {{ data_get($fixture, 'league.name', 'Football Match') }}
+
                         <span class="match-badge finished-badge">FT</span>
                     </div>
 
@@ -461,9 +621,11 @@
                     </div>
 
                     <div class="fixture-status">
+
                         {{ \Illuminate\Support\Carbon::parse(data_get($fixture, 'fixture.date'))
                             ->setTimezone('Europe/London')
                             ->format('d M Y, H:i') }}
+
                     </div>
 
                 </div>

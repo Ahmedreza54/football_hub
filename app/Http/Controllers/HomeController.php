@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Http\Request;
 use App\Services\FootballApiService;
 use App\Models\Team;
 use App\Models\Player;
@@ -9,7 +10,7 @@ use App\Models\FootballMatch;
 
 class HomeController extends Controller
 {
-    public function index(FootballApiService $footballApi)
+    public function index(Request $request, FootballApiService $footballApi)
     {
         // Get today's football fixtures from the API
         $apiResponse = $footballApi->get('fixtures', [
@@ -50,6 +51,29 @@ class HomeController extends Controller
             ->whereNotNull('away_score')
             ->count();
 
+        // Search teams and players
+        $search = trim($request->query('search', ''));
+
+        $teamResults = collect();
+        $playerResults = collect();
+
+        if ($search !== '') {
+            $teamResults = Team::where('name', 'like', "%{$search}%")
+                ->orWhere('country', 'like', "%{$search}%")
+                ->orderBy('name')
+                ->limit(10)
+                ->get();
+
+            $playerResults = Player::with('team')
+                ->where(function ($query) use ($search) {
+                    $query->where('name', 'like', "%{$search}%")
+                        ->orWhere('position', 'like', "%{$search}%");
+                })
+                ->orderBy('name')
+                ->limit(10)
+                ->get();
+        }
+
         return view('home', compact(
             'fixtures',
             'liveFixtures',
@@ -58,7 +82,10 @@ class HomeController extends Controller
             'totalTeams',
             'totalPlayers',
             'totalMatches',
-            'completedMatches'
+            'completedMatches',
+            'search',
+            'teamResults',
+            'playerResults'
         ));
     }
 }
