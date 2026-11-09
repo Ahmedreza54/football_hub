@@ -43,7 +43,7 @@ class LeagueTableController extends Controller
                         $points += 3;
                     } elseif ($match->home_score == $match->away_score) {
                         $drawn++;
-                        $points++;
+                        $points += 1;
                     } else {
                         $lost++;
                     }
@@ -56,7 +56,7 @@ class LeagueTableController extends Controller
                         $points += 3;
                     } elseif ($match->away_score == $match->home_score) {
                         $drawn++;
-                        $points++;
+                        $points += 1;
                     } else {
                         $lost++;
                     }
@@ -76,11 +76,13 @@ class LeagueTableController extends Controller
             ];
         }
 
-        $table = collect($table)
-            ->sortByDesc('gf')
-            ->sortByDesc('gd')
-            ->sortByDesc('points')
-            ->values();
+        // Sort by points, goal difference, then goals scored.
+        $table = collect($table)->sort(function ($a, $b) {
+            return ($b['points'] <=> $a['points'])
+                ?: ($b['gd'] <=> $a['gd'])
+                ?: ($b['gf'] <=> $a['gf'])
+                ?: strcmp($a['team'], $b['team']);
+        })->values();
 
         return view('league-table', compact('table'));
     }
