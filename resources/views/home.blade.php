@@ -106,6 +106,24 @@
             background: #15803d;
         }
 
+        .clear-search {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 12px 18px;
+            border-radius: 6px;
+            background: #6b7280;
+            color: white;
+            font-weight: bold;
+            text-decoration: none;
+            white-space: nowrap;
+        }
+
+        .clear-search:hover {
+            background: #4b5563;
+            color: white;
+        }
+
         .search-result {
             background: #f9fafb;
             padding: 15px;
@@ -309,6 +327,16 @@
             .search-form {
                 flex-direction: column;
             }
+
+            .search-form input,
+            .search-form button,
+            .search-form .clear-search {
+                width: 100%;
+            }
+
+            .search-form .clear-search {
+                text-align: center;
+            }
         }
     </style>
 </head>
@@ -360,6 +388,12 @@
                 >
 
                 <button type="submit">Search</button>
+
+                @if($search !== '')
+                    <a href="{{ route('home') }}" class="clear-search">
+                        Clear Search
+                    </a>
+                @endif
 
             </form>
 
