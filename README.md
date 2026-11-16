@@ -1,59 +1,187 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Football Hub
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+## 1. Project Overview
 
-## About Laravel
+Football Hub is a web-based football management system developed using Laravel. It allows users to manage football teams, players, matches, scores and league standings through a simple web interface.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## 2. Project Objectives
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+- Develop a football management website.
+- Manage football teams and players.
+- Create and manage football matches.
+- Record match scores and results.
+- Calculate league standings automatically.
+- Display football fixtures using an external API.
+- Provide reminders for scheduled matches.
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+## 3. Technologies Used
 
-## Learning Laravel
+- PHP
+- Laravel
+- HTML
+- CSS
+- Bootstrap 5.3.3
+- JavaScript
+- SQLite for local development
+- Football API
+- Git and GitHub
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+## 4. Main Features
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+### Dashboard
+- Displays football statistics.
+- Shows live, upcoming and finished fixtures.
+- Allows users to search for teams and players.
 
-## Laravel Sponsors
+### Team Management
+- Add and manage football teams.
+- Store team names and countries.
+- Delete teams.
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+### Player Management
+- Add and manage players.
+- Store player names and positions.
+- Assign players to teams.
 
-### Premium Partners
+### Match Management
+- Create football matches.
+- Select home and away teams.
+- Set match dates, times and venues.
+- Edit and delete matches.
+- Record scores and results.
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+### League Table
+- Calculates played, won, drawn and lost matches.
+- Calculates goals for, goals against and goal difference.
+- Awards three points for a win and one point for a draw.
+- Automatically ranks teams using their results.
 
-## Contributing
+### Match Reminders
+- Creates reminders one hour before scheduled matches.
+- Displays reminders on the Matches page.
+- Supports browser notifications.
+- Uses Laravel scheduled tasks to process reminders.
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+**Note:** Browser notifications currently require the Matches page to remain open.
 
-## Code of Conduct
+## 5. Database Structure
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+The main database tables are:
 
-## Security Vulnerabilities
+| Table | Description |
+|---|---|
+| teams | Stores football team information |
+| players | Stores player information |
+| matches | Stores match details and scores |
+| match_reminders | Stores match reminder information |
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+## 6. Installation and Setup
 
-## License
+### Requirements
+- PHP
+- Composer
+- Laravel
+- Git
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+### Step 1: Clone the repository
+
+```bash
+git clone https://github.com/Ahmedreza54/football_hub.git
+```
+
+### Step 2: Open the project folder
+
+```bash
+cd football_hub
+```
+
+### Step 3: Install dependencies
+
+```bash
+composer install
+```
+
+### Step 4: Configure the environment
+
+Copy `.env.example` to `.env`.
+
+Generate the application key:
+
+```bash
+php artisan key:generate
+```
+
+Configure the database in the `.env` file.
+
+### Step 5: Run migrations
+
+```bash
+php artisan migrate
+```
+
+### Step 6: Start the application
+
+```bash
+php artisan serve
+```
+
+Open the application:
+
+http://127.0.0.1:8000
+
+### Step 7: Start the reminder scheduler
+
+Open another terminal in the project folder:
+
+```bash
+php artisan schedule:work
+```
+
+Keep the scheduler running to process reminders.
+
+## 7. GitHub Repository
+
+Project repository:
+
+https://github.com/Ahmedreza54/football_hub
+
+Git and GitHub are used to track project development and maintain version history.
+
+## 8. Testing
+
+The following features have been tested during local development:
+
+- Team management.
+- Player management.
+- Match creation and management.
+- Match scores and results.
+- League table calculations.
+- Dashboard search.
+- Football fixture display.
+- Match reminder creation.
+- Browser notifications.
+- Scheduled reminder processing.
+
+## 9. Limitations
+
+- The application has been developed and tested locally.
+- Browser notifications require the Matches page to remain open.
+- Local development currently uses SQLite.
+- Football fixture information depends on the external API.
+- The Laravel server and scheduler must be running for local operation.
+
+## 10. Future Improvements
+
+- Improve reminder delivery when the browser is closed.
+- Add user authentication.
+- Improve mobile responsiveness.
+- Add more football statistics.
+- Complete deployment and testing on the university hosting server.
+
+## 11. Project Information
+
+**Project Name:** Football Hub
+
+**Framework:** Laravel
+
+**Repository:** https://github.com/Ahmedreza54/football_hub
