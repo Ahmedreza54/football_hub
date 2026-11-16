@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -45,6 +44,26 @@
             <p class="lead text-muted">
                 Manage football matches, scores and results.
             </p>
+        </div>
+
+        <!-- Match Reminders -->
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-warning text-dark d-flex flex-wrap justify-content-between align-items-center gap-2">
+                <h2 class="h5 mb-0">Match Reminders</h2>
+                <button type="button" class="btn btn-dark btn-sm" id="enableNotifications">
+                    Enable Browser Notifications
+                </button>
+            </div>
+            <div class="card-body">
+                <p class="text-muted small mb-3">
+                    Reminders appear here one hour before scheduled matches. Browser notifications
+                    require permission and this page to remain open.
+                </p>
+                <div id="reminderList" aria-live="polite">
+                    <p class="text-muted mb-0">Loading reminders...</p>
+                </div>
+                <p id="notificationStatus" class="small text-muted mt-2 mb-0" role="status"></p>
+            </div>
         </div>
 
         <!-- Success Message -->
@@ -356,6 +375,116 @@
         </div>
 
     </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const remindersUrl = @json(route('match-reminders.index'));
+            const reminderList = document.getElementById('reminderList');
+            const enableButton = document.getElementById('enableNotifications');
+            const notificationStatus = document.getElementById('notificationStatus');
+            let knownReminderIds = null;
+
+            function escapeHtml(value) {
+                return String(value ?? '').replace(/[&<>"']/g, function (character) {
+                    return ({
+                        '&': '&amp;', '<': '&lt;', '>': '&gt;',
+                        '"': '&quot;', "'": '&#039;'
+                    })[character];
+                });
+            }
+
+            function formatDate(value) {
+                const date = new Date(String(value).replace(' ', 'T'));
+                if (Number.isNaN(date.getTime())) return escapeHtml(value);
+                return date.toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' });
+            }
+
+            function showBrowserNotification(reminder) {
+                if (!('Notification' in window) || Notification.permission !== 'granted') return;
+                const title = reminder.home_team + ' vs ' + reminder.away_team;
+                const notification = new Notification('Football Hub match reminder', {
+                    body: title + '\nKick-off: ' + formatDate(reminder.match_date)
+                        + (reminder.venue ? '\nVenue: ' + reminder.venue : ''),
+                    tag: 'football-hub-reminder-' + reminder.id
+                });
+                notification.onclick = function () {
+                    window.focus();
+                    notification.close();
+                };
+            }
+
+            function renderReminders(reminders) {
+                if (!reminders.length) {
+                    reminderList.innerHTML = '<p class="text-muted mb-0">No match reminders yet. Reminders will appear here one hour before kick-off.</p>';
+                    return;
+                }
+
+                reminderList.innerHTML = reminders.map(function (reminder) {
+                    return `
+                        <div class="alert alert-warning mb-2">
+                            <strong>${escapeHtml(reminder.home_team)} vs ${escapeHtml(reminder.away_team)}</strong>
+                            <div class="small mt-1">
+                                Kick-off: ${formatDate(reminder.match_date)}
+                                ${reminder.venue ? ' · Venue: ' + escapeHtml(reminder.venue) : ''}
+                            </div>
+                            <div class="small text-muted">Reminder processed: ${formatDate(reminder.sent_at)}</div>
+                        </div>
+                    `;
+                }).join('');
+            }
+
+            async function loadReminders() {
+                try {
+                    const response = await fetch(remindersUrl, {
+                        headers: { 'Accept': 'application/json' },
+                        cache: 'no-store'
+                    });
+                    if (!response.ok) throw new Error('Could not load reminders.');
+
+                    const reminders = await response.json();
+                    renderReminders(reminders);
+                    const currentIds = new Set(reminders.map(reminder => Number(reminder.id)));
+
+                    // First load establishes a baseline; only newly processed reminders
+                    // trigger a browser notification on subsequent polls.
+                    if (knownReminderIds !== null) {
+                        reminders.forEach(function (reminder) {
+                            if (!knownReminderIds.has(Number(reminder.id))) {
+                                showBrowserNotification(reminder);
+                            }
+                        });
+                    }
+                    knownReminderIds = currentIds;
+                } catch (error) {
+                    reminderList.innerHTML = '<p class="text-danger mb-0">Unable to load reminders. Please refresh the page.</p>';
+                    console.error(error);
+                }
+            }
+
+            enableButton.addEventListener('click', async function () {
+                if (!('Notification' in window)) {
+                    notificationStatus.textContent = 'This browser does not support desktop notifications.';
+                    return;
+                }
+                const permission = await Notification.requestPermission();
+                notificationStatus.textContent = permission === 'granted'
+                    ? 'Browser notifications are enabled. Keep this page open to receive them.'
+                    : 'Browser notifications are not enabled. You can still see reminders on this page.';
+            });
+
+            if (!('Notification' in window)) {
+                enableButton.disabled = true;
+                notificationStatus.textContent = 'This browser does not support desktop notifications.';
+            } else if (Notification.permission === 'granted') {
+                notificationStatus.textContent = 'Browser notifications are already enabled.';
+            } else if (Notification.permission === 'denied') {
+                notificationStatus.textContent = 'Browser notifications are blocked in browser settings.';
+            }
+
+            loadReminders();
+            window.setInterval(loadReminders, 30000);
+        });
+    </script>
 
 </body>
 </html>

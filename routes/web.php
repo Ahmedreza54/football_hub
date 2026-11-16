@@ -1,4 +1,3 @@
-
 <?php
 
 use Illuminate\Support\Facades\Route;
@@ -7,10 +6,10 @@ use App\Http\Controllers\TeamController;
 use App\Http\Controllers\PlayerController;
 use App\Http\Controllers\FootballMatchController;
 use App\Http\Controllers\LeagueTableController;
+use App\Http\Controllers\MatchReminderController;
 
 Route::get('/', [HomeController::class, 'index'])
     ->name('home');
-
 
 // TEAM ROUTES
 
@@ -23,7 +22,6 @@ Route::post('/teams', [TeamController::class, 'store'])
 Route::delete('/teams/{team}', [TeamController::class, 'destroy'])
     ->name('teams.destroy');
 
-
 // PLAYER ROUTES
 
 Route::get('/players', [PlayerController::class, 'index'])
@@ -34,7 +32,6 @@ Route::post('/players', [PlayerController::class, 'store'])
 
 Route::delete('/players/{player}', [PlayerController::class, 'destroy'])
     ->name('players.destroy');
-
 
 // MATCH ROUTES
 
@@ -53,6 +50,10 @@ Route::get('/matches/{footballMatch}/edit', [FootballMatchController::class, 'ed
 Route::put('/matches/{footballMatch}', [FootballMatchController::class, 'update'])
     ->name('matches.update');
 
+// MATCH REMINDER ROUTE
+
+Route::get('/match-reminders', [MatchReminderController::class, 'index'])
+    ->name('match-reminders.index');
 
 // LEAGUE TABLE ROUTE
 
