@@ -17,21 +17,18 @@ class TeamController extends Controller
 
     // Add a new team
     public function store(Request $request)
-    {
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'country' => 'required|string|max:255',
-        ]);
+{
+    $validated = $request->validate([
+        'name' => 'required|string|max:255',
+        'country' => 'required|string|max:255',
+    ]);
 
-        Team::create([
-            'name' => $request->name,
-            'country' => $request->country,
-        ]);
+    Team::create($validated);
 
-        return redirect()
-            ->route('teams')
-            ->with('success', 'Team added successfully!');
-    }
+    return redirect()
+        ->route('teams')
+        ->with('success', 'Team added successfully!');
+}
 
     // Delete a team
     public function destroy(Team $team)

@@ -7,22 +7,59 @@ use App\Services\FootballApiService;
 use App\Models\Team;
 use App\Models\Player;
 use App\Models\FootballMatch;
+use Illuminate\Support\Facades\Log;
+use Throwable;
 
 class HomeController extends Controller
 {
     public function index(Request $request, FootballApiService $footballApi)
     {
-        // Get today's football fixtures from the API
-        $apiResponse = $footballApi->get('fixtures', [
-            'date' => now('Europe/London')->toDateString(),
-            'timezone' => 'Europe/London',
-        ]);
+        // Default API values
+        $fixtures = [];
+        $apiAvailable = false;
+        $apiError = null;
 
-        $fixtures = $apiResponse->successful()
-            ? $apiResponse->json('response', [])
-            : [];
+        // Get today's football fixtures
+        try {
+            $apiResponse = $footballApi->get('fixtures', [
+                'date' => now('Europe/London')->toDateString(),
+                'timezone' => 'Europe/London',
+            ]);
 
-        // Separate fixtures by their API status codes
+            if (!$apiResponse->successful()) {
+                Log::error('Football API returned an unsuccessful response.', [
+                    'http_status' => $apiResponse->status(),
+                ]);
+
+                $apiError = 'Football information is temporarily unavailable. Please try again later.';
+            } else {
+                $apiData = $apiResponse->json();
+
+                $apiErrors = data_get($apiData, 'errors', []);
+
+                $responseFixtures = data_get($apiData, 'response');
+
+                if (!empty($apiErrors) || !is_array($responseFixtures)) {
+                    Log::error('Football API returned invalid or error data.', [
+                        'api_errors' => $apiErrors,
+                    ]);
+
+                    $apiError = 'We could not retrieve football information at the moment. Please try again later.';
+                } else {
+                    $fixtures = $responseFixtures;
+                    $apiAvailable = true;
+                }
+            }
+
+        } catch (Throwable $exception) {
+            Log::error('Football API connection failed.', [
+                'message' => $exception->getMessage(),
+            ]);
+
+            $apiError = 'Unable to connect to the football service. Please check your connection and try again.';
+        }
+
+        // Separate fixtures by API status
         $liveFixtures = collect($fixtures)->filter(function ($fixture) {
             return in_array(data_get($fixture, 'fixture.status.short'), [
                 '1H', 'HT', '2H', 'ET', 'BT', 'P', 'LIVE'
@@ -79,6 +116,8 @@ class HomeController extends Controller
             'liveFixtures',
             'upcomingFixtures',
             'finishedFixtures',
+            'apiAvailable',
+            'apiError',
             'totalTeams',
             'totalPlayers',
             'totalMatches',

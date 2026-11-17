@@ -1,684 +1,378 @@
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <title>Football Hub</title>
-
-    <style>
-        * {
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            background-color: #f4f4f4;
-            color: #111827;
-        }
-
-        header {
-            background-color: #111827;
-            color: white;
-            padding: 20px;
-            text-align: center;
-        }
-
-        nav {
-            background-color: #1f2937;
-            padding: 12px;
-            text-align: center;
-        }
-
-        nav a {
-            color: white;
-            text-decoration: none;
-            margin: 0 15px;
-        }
-
-        nav a:hover {
-            color: #22c55e;
-        }
-
-        .container {
-            width: 90%;
-            max-width: 1100px;
-            margin: 30px auto;
-        }
-
-        .welcome {
-            background: white;
-            padding: 30px;
-            border-radius: 10px;
-            text-align: center;
-        }
-
-        .welcome h2 {
-            color: #111827;
-        }
-
-        .section-title {
-            text-align: center;
-            color: #111827;
-            margin-top: 35px;
-            margin-bottom: 20px;
-        }
-
-        /* Search section */
-
-        .search-section {
-            background: white;
-            padding: 25px;
-            margin-top: 25px;
-            border-radius: 10px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-        }
-
-        .search-form {
-            display: flex;
-            gap: 10px;
-            max-width: 650px;
-            margin: 20px auto;
-        }
-
-        .search-form input {
-            flex: 1;
-            min-width: 0;
-            padding: 12px;
-            border: 1px solid #ccc;
-            border-radius: 6px;
-            font-size: 16px;
-        }
-
-        .search-form button {
-            padding: 12px 22px;
-            border: none;
-            border-radius: 6px;
-            background: #16a34a;
-            color: white;
-            font-weight: bold;
-            cursor: pointer;
-        }
-
-        .search-form button:hover {
-            background: #15803d;
-        }
-
-        .clear-search {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            padding: 12px 18px;
-            border-radius: 6px;
-            background: #6b7280;
-            color: white;
-            font-weight: bold;
-            text-decoration: none;
-            white-space: nowrap;
-        }
-
-        .clear-search:hover {
-            background: #4b5563;
-            color: white;
-        }
-
-        .search-result {
-            background: #f9fafb;
-            padding: 15px;
-            border-radius: 6px;
-            margin: 10px 0;
-        }
-
-        .search-result a {
-            color: #2563eb;
-            text-decoration: none;
-            font-weight: bold;
-        }
-
-        .search-result a:hover {
-            text-decoration: underline;
-        }
-
-        .search-results-heading {
-            margin-top: 20px;
-            color: #111827;
-        }
-
-        /* Dashboard statistics */
-
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 20px;
-            margin-top: 25px;
-        }
-
-        .stat-card {
-            background: white;
-            padding: 25px 15px;
-            border-radius: 10px;
-            text-align: center;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-            border-bottom: 4px solid #16a34a;
-        }
-
-        .stat-card h3 {
-            color: #555;
-            font-size: 16px;
-            margin-bottom: 12px;
-        }
-
-        .stat-number {
-            color: #111827;
-            font-size: 32px;
-            font-weight: bold;
-            margin: 0;
-        }
-
-        /* Navigation cards */
-
-        .cards {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 20px;
-            margin-top: 25px;
-        }
-
-        .card {
-            background: white;
-            padding: 25px;
-            border-radius: 10px;
-            text-align: center;
-        }
-
-        .card h3 {
-            color: #16a34a;
-        }
-
-        .card a {
-            color: #2563eb;
-            font-weight: bold;
-            text-decoration: none;
-        }
-
-        .card a:hover {
-            color: #16a34a;
-            text-decoration: underline;
-        }
-
-        /* Football fixtures */
-
-        .fixtures-section {
-            margin-top: 35px;
-        }
-
-        .fixtures-section h2 {
-            text-align: center;
-            color: #111827;
-            margin-top: 35px;
-            margin-bottom: 20px;
-        }
-
-        .fixture-card {
-            background: white;
-            padding: 20px;
-            border-radius: 10px;
-            margin-bottom: 15px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-        }
-
-        .fixture-league {
-            color: #16a34a;
-            font-weight: bold;
-            margin-bottom: 12px;
-        }
-
-        .fixture-teams {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 15px;
-            text-align: center;
-        }
-
-        .team-name {
-            flex: 1;
-            font-weight: bold;
-        }
-
-        .fixture-score {
-            font-size: 22px;
-            font-weight: bold;
-            color: #111827;
-            white-space: nowrap;
-        }
-
-        .fixture-status {
-            text-align: center;
-            margin-top: 12px;
-            color: #555;
-            font-size: 14px;
-        }
-
-        /* Match status badges */
-
-        .match-badge {
-            display: inline-block;
-            padding: 5px 10px;
-            border-radius: 20px;
-            font-size: 11px;
-            margin-left: 8px;
-            color: white;
-        }
-
-        .live-badge {
-            background: #dc2626;
-        }
-
-        .upcoming-badge {
-            background: #2563eb;
-        }
-
-        .finished-badge {
-            background: #16a34a;
-        }
-
-        .empty-message {
-            background: white;
-            padding: 25px;
-            border-radius: 10px;
-            text-align: center;
-            color: #666;
-        }
-
-        footer {
-            text-align: center;
-            color: #666;
-            padding: 25px;
-            margin-top: 30px;
-        }
-
-        /* Responsive design */
-
-        @media (max-width: 900px) {
-            .stats-grid,
-            .cards {
-                grid-template-columns: repeat(2, 1fr);
-            }
-        }
-
-        @media (max-width: 600px) {
-            .stats-grid,
-            .cards {
-                grid-template-columns: 1fr;
-            }
-
-            nav a {
-                display: inline-block;
-                margin: 7px;
-            }
-
-            .fixture-teams {
-                flex-direction: column;
-            }
-
-            .search-form {
-                flex-direction: column;
-            }
-
-            .search-form input,
-            .search-form button,
-            .search-form .clear-search {
-                width: 100%;
-            }
-
-            .search-form .clear-search {
-                text-align: center;
-            }
-        }
-    </style>
-</head>
-
-<body>
-
-    <header>
-        <h1>Football Hub</h1>
-        <p>Your football information website</p>
-    </header>
-
-    <nav>
-        <a href="{{ route('home') }}">Home</a>
-        <a href="{{ route('teams') }}">Teams</a>
-        <a href="{{ route('players') }}">Players</a>
-        <a href="{{ route('matches') }}">Matches</a>
-        <a href="{{ route('league-table') }}">League Table</a>
-        <a href="#">News</a>
-    </nav>
-
-    <div class="container">
-
-        <!-- Welcome section -->
-
-        <div class="welcome">
-            <h2>Welcome to Football Hub</h2>
-
-            <p>
-                Find football teams, players, matches and the latest football information.
-            </p>
-        </div>
-
-        <!-- Search Teams and Players -->
-
-        <section class="search-section">
-
-            <h2 class="section-title" style="margin-top: 0;">
-                Search Football Hub
-            </h2>
-
-            <form action="{{ route('home') }}" method="GET" class="search-form">
-
+@extends('layouts.app')
+
+@section('title', 'Home - Football Hub')
+
+@section('content')
+
+<!-- Welcome section -->
+<div class="card shadow-sm border-0 mb-4">
+    <div class="card-body text-center py-5">
+        <h1 class="fw-bold text-dark">Welcome to Football Hub</h1>
+        <p class="text-secondary mb-0">
+            Find football teams, players, matches and the latest football information.
+        </p>
+    </div>
+</div>
+
+<!-- Search section -->
+<div class="card shadow-sm border-0 mb-4">
+    <div class="card-body">
+        <h2 class="h4 text-center mb-4">Search Football Hub</h2>
+
+        <form action="{{ route('home') }}" method="GET"
+              class="row g-2 justify-content-center">
+
+            <div class="col-12 col-md-7">
                 <input
                     type="search"
                     name="search"
+                    class="form-control"
                     placeholder="Search for a team or player..."
                     value="{{ $search }}"
-                    aria-label="Search teams and players"
-                >
+                    aria-label="Search teams and players">
+            </div>
 
-                <button type="submit">Search</button>
-
-                @if($search !== '')
-                    <a href="{{ route('home') }}" class="clear-search">
-                        Clear Search
-                    </a>
-                @endif
-
-            </form>
+            <div class="col-6 col-md-auto">
+                <button type="submit" class="btn btn-success w-100">
+                    Search
+                </button>
+            </div>
 
             @if($search !== '')
+                <div class="col-6 col-md-auto">
+                    <a href="{{ route('home') }}"
+                       class="btn btn-secondary w-100">
+                        Clear Search
+                    </a>
+                </div>
+            @endif
+        </form>
 
-                <h3 class="search-results-heading">
-                    Search results for "{{ $search }}"
-                </h3>
+        @if($search !== '')
+            <h3 class="h5 mt-4">
+                Search results for "{{ $search }}"
+            </h3>
 
-                @if($teamResults->isEmpty() && $playerResults->isEmpty())
-
-                    <div class="empty-message">
-                        No teams or players found. Please try another search.
-                    </div>
-
-                @endif
-
-                @foreach($teamResults as $team)
-
-                    <div class="search-result">
-
-                        <strong>Team:</strong>
-                        {{ $team->name }}
-
-                        @if($team->country)
-                            — {{ $team->country }}
-                        @endif
-
-                        <br>
-
-                        <a href="{{ route('teams') }}">
-                            View Teams
-                        </a>
-
-                    </div>
-
-                @endforeach
-
-                @foreach($playerResults as $player)
-
-                    <div class="search-result">
-
-                        <strong>Player:</strong>
-                        {{ $player->name }}
-
-                        — {{ $player->position }}
-
-                        @if($player->team)
-                            <br>
-                            <small>Team: {{ $player->team->name }}</small>
-                        @endif
-
-                        <br>
-
-                        <a href="{{ route('players') }}">
-                            View Players
-                        </a>
-
-                    </div>
-
-                @endforeach
-
+            @if($teamResults->isEmpty() && $playerResults->isEmpty())
+                <div class="alert alert-warning mt-3">
+                    No teams or players found. Please try another search.
+                </div>
             @endif
 
-        </section>
+            @foreach($teamResults as $team)
+                <div class="alert alert-light border mt-3">
+                    <strong>Team:</strong> {{ $team->name }}
 
-        <!-- Dashboard statistics -->
+                    @if($team->country)
+                        — {{ $team->country }}
+                    @endif
 
-        <h2 class="section-title">Dashboard Statistics</h2>
+                    <div class="mt-2">
+                        <a href="{{ route('teams') }}"
+                           class="btn btn-sm btn-outline-primary">
+                            View Teams
+                        </a>
+                    </div>
+                </div>
+            @endforeach
 
-        <div class="stats-grid">
+            @foreach($playerResults as $player)
+                <div class="alert alert-light border mt-3">
+                    <strong>Player:</strong>
+                    {{ $player->name }} — {{ $player->position }}
 
-            <div class="stat-card">
-                <h3>Total Teams</h3>
-                <p class="stat-number">{{ $totalTeams }}</p>
+                    @if($player->team)
+                        <div class="small text-secondary mt-1">
+                            Team: {{ $player->team->name }}
+                        </div>
+                    @endif
+
+                    <div class="mt-2">
+                        <a href="{{ route('players') }}"
+                           class="btn btn-sm btn-outline-primary">
+                            View Players
+                        </a>
+                    </div>
+                </div>
+            @endforeach
+        @endif
+    </div>
+</div>
+
+<!-- Dashboard statistics -->
+<h2 class="h3 text-center mb-4">Dashboard Statistics</h2>
+
+<div class="row g-3 mb-5">
+
+    <div class="col-12 col-sm-6 col-lg-3">
+        <div class="card shadow-sm border-0 h-100 text-center">
+            <div class="card-body">
+                <h3 class="h6 text-secondary">Total Teams</h3>
+                <p class="display-5 fw-bold text-success mb-0">
+                    {{ $totalTeams }}
+                </p>
             </div>
-
-            <div class="stat-card">
-                <h3>Total Players</h3>
-                <p class="stat-number">{{ $totalPlayers }}</p>
-            </div>
-
-            <div class="stat-card">
-                <h3>Total Matches</h3>
-                <p class="stat-number">{{ $totalMatches }}</p>
-            </div>
-
-            <div class="stat-card">
-                <h3>Completed Matches</h3>
-                <p class="stat-number">{{ $completedMatches }}</p>
-            </div>
-
         </div>
+    </div>
 
-        <!-- Website navigation cards -->
+    <div class="col-12 col-sm-6 col-lg-3">
+        <div class="card shadow-sm border-0 h-100 text-center">
+            <div class="card-body">
+                <h3 class="h6 text-secondary">Total Players</h3>
+                <p class="display-5 fw-bold text-success mb-0">
+                    {{ $totalPlayers }}
+                </p>
+            </div>
+        </div>
+    </div>
 
-        <h2 class="section-title">Explore Football Hub</h2>
+    <div class="col-12 col-sm-6 col-lg-3">
+        <div class="card shadow-sm border-0 h-100 text-center">
+            <div class="card-body">
+                <h3 class="h6 text-secondary">Total Matches</h3>
+                <p class="display-5 fw-bold text-success mb-0">
+                    {{ $totalMatches }}
+                </p>
+            </div>
+        </div>
+    </div>
 
-        <div class="cards">
+    <div class="col-12 col-sm-6 col-lg-3">
+        <div class="card shadow-sm border-0 h-100 text-center">
+            <div class="card-body">
+                <h3 class="h6 text-secondary">Completed Matches</h3>
+                <p class="display-5 fw-bold text-success mb-0">
+                    {{ $completedMatches }}
+                </p>
+            </div>
+        </div>
+    </div>
 
-            <div class="card">
-                <h3>Teams</h3>
+</div>
+
+<!-- Explore Football Hub -->
+<h2 class="h3 text-center mb-4">Explore Football Hub</h2>
+
+<div class="row g-3 mb-5">
+
+    <div class="col-12 col-sm-6 col-lg-3">
+        <div class="card shadow-sm border-0 h-100 text-center">
+            <div class="card-body">
+                <h3 class="h5 text-success">Teams</h3>
                 <p>View football teams and their information.</p>
-                <a href="{{ route('teams') }}">View Teams</a>
+                <a href="{{ route('teams') }}" class="btn btn-outline-success">
+                    View Teams
+                </a>
             </div>
+        </div>
+    </div>
 
-            <div class="card">
-                <h3>Players</h3>
+    <div class="col-12 col-sm-6 col-lg-3">
+        <div class="card shadow-sm border-0 h-100 text-center">
+            <div class="card-body">
+                <h3 class="h5 text-success">Players</h3>
                 <p>Explore football players and their details.</p>
-                <a href="{{ route('players') }}">View Players</a>
+                <a href="{{ route('players') }}" class="btn btn-outline-success">
+                    View Players
+                </a>
             </div>
+        </div>
+    </div>
 
-            <div class="card">
-                <h3>Matches</h3>
+    <div class="col-12 col-sm-6 col-lg-3">
+        <div class="card shadow-sm border-0 h-100 text-center">
+            <div class="card-body">
+                <h3 class="h5 text-success">Matches</h3>
                 <p>Check upcoming and previous football matches.</p>
-                <a href="{{ route('matches') }}">View Matches</a>
+                <a href="{{ route('matches') }}" class="btn btn-outline-success">
+                    View Matches
+                </a>
             </div>
+        </div>
+    </div>
 
-            <div class="card">
-                <h3>League Table</h3>
+    <div class="col-12 col-sm-6 col-lg-3">
+        <div class="card shadow-sm border-0 h-100 text-center">
+            <div class="card-body">
+                <h3 class="h5 text-success">League Table</h3>
                 <p>View team standings, points and goal difference.</p>
-                <a href="{{ route('league-table') }}">View League Table</a>
+                <a href="{{ route('league-table') }}"
+                   class="btn btn-outline-success">
+                    View League Table
+                </a>
             </div>
+        </div>
+    </div>
 
+</div>
+
+<!-- Football API fixtures -->
+<section class="mb-5">
+
+    @if(!$apiAvailable)
+
+        <!-- API error message -->
+        <div class="alert alert-warning text-center mb-4" role="alert">
+            <h4 class="alert-heading">
+                <i class="bi bi-exclamation-triangle"></i>
+                Football Information Unavailable
+            </h4>
+
+            <p class="mb-0">
+                {{ $apiError ?? 'Football information is temporarily unavailable. Please try again later.' }}
+            </p>
         </div>
 
-        <!-- Football API fixtures -->
+    @else
 
-        <section class="fixtures-section">
+        <!-- Live matches -->
+        <h2 class="h3 text-center mb-4">Live Matches</h2>
 
-            <!-- Live matches -->
+        @forelse($liveFixtures->take(5) as $fixture)
 
-            <h2>Live Matches</h2>
+            <div class="card shadow-sm border-0 mb-3">
+                <div class="card-body">
 
-            @forelse($liveFixtures->take(5) as $fixture)
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <strong class="text-success">
+                            {{ data_get($fixture, 'league.name', 'Football Match') }}
+                        </strong>
 
-                <div class="fixture-card">
-
-                    <div class="fixture-league">
-                        {{ data_get($fixture, 'league.name', 'Football Match') }}
-
-                        <span class="match-badge live-badge">LIVE</span>
+                        <span class="badge bg-danger">LIVE</span>
                     </div>
 
-                    <div class="fixture-teams">
-
-                        <div class="team-name">
+                    <div class="row align-items-center text-center g-2">
+                        <div class="col-4 fw-bold">
                             {{ data_get($fixture, 'teams.home.name', 'Home Team') }}
                         </div>
 
-                        <div class="fixture-score">
+                        <div class="col-4 fs-4 fw-bold">
                             {{ data_get($fixture, 'goals.home', 0) }}
                             -
                             {{ data_get($fixture, 'goals.away', 0) }}
                         </div>
 
-                        <div class="team-name">
+                        <div class="col-4 fw-bold">
                             {{ data_get($fixture, 'teams.away.name', 'Away Team') }}
                         </div>
-
                     </div>
 
-                    <div class="fixture-status">
-
+                    <div class="text-center text-secondary small mt-3">
                         {{ data_get($fixture, 'fixture.status.long', 'In Progress') }}
 
                         @if(data_get($fixture, 'fixture.status.elapsed') !== null)
                             ({{ data_get($fixture, 'fixture.status.elapsed') }}')
                         @endif
-
                     </div>
 
                 </div>
+            </div>
 
-            @empty
+        @empty
 
-                <div class="empty-message">
-                    No live matches at the moment.
-                </div>
+            <div class="alert alert-light border text-center">
+                No live matches at the moment.
+            </div>
 
-            @endforelse
+        @endforelse
 
-            <!-- Upcoming matches -->
+        <!-- Upcoming matches -->
+        <h2 class="h3 text-center my-4">Upcoming Matches</h2>
 
-            <h2>Upcoming Matches</h2>
+        @forelse($upcomingFixtures->take(5) as $fixture)
 
-            @forelse($upcomingFixtures->take(5) as $fixture)
+            <div class="card shadow-sm border-0 mb-3">
+                <div class="card-body">
 
-                <div class="fixture-card">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <strong class="text-success">
+                            {{ data_get($fixture, 'league.name', 'Football Match') }}
+                        </strong>
 
-                    <div class="fixture-league">
-                        {{ data_get($fixture, 'league.name', 'Football Match') }}
-
-                        <span class="match-badge upcoming-badge">UPCOMING</span>
+                        <span class="badge bg-primary">UPCOMING</span>
                     </div>
 
-                    <div class="fixture-teams">
-
-                        <div class="team-name">
+                    <div class="row align-items-center text-center g-2">
+                        <div class="col-4 fw-bold">
                             {{ data_get($fixture, 'teams.home.name', 'Home Team') }}
                         </div>
 
-                        <div class="fixture-score">VS</div>
+                        <div class="col-4 fs-5 fw-bold">VS</div>
 
-                        <div class="team-name">
+                        <div class="col-4 fw-bold">
                             {{ data_get($fixture, 'teams.away.name', 'Away Team') }}
                         </div>
-
                     </div>
 
-                    <div class="fixture-status">
-
+                    <div class="text-center text-secondary small mt-3">
                         {{ \Illuminate\Support\Carbon::parse(data_get($fixture, 'fixture.date'))
                             ->setTimezone('Europe/London')
                             ->format('d M Y, H:i') }}
-
                     </div>
 
                 </div>
+            </div>
 
-            @empty
+        @empty
 
-                <div class="empty-message">
-                    No upcoming matches available today.
-                </div>
+            <div class="alert alert-light border text-center">
+                No upcoming matches available today.
+            </div>
 
-            @endforelse
+        @endforelse
 
-            <!-- Finished matches -->
+        <!-- Finished matches -->
+        <h2 class="h3 text-center my-4">Finished Matches</h2>
 
-            <h2>Finished Matches</h2>
+        @forelse($finishedFixtures->take(5) as $fixture)
 
-            @forelse($finishedFixtures->take(5) as $fixture)
+            <div class="card shadow-sm border-0 mb-3">
+                <div class="card-body">
 
-                <div class="fixture-card">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <strong class="text-success">
+                            {{ data_get($fixture, 'league.name', 'Football Match') }}
+                        </strong>
 
-                    <div class="fixture-league">
-                        {{ data_get($fixture, 'league.name', 'Football Match') }}
-
-                        <span class="match-badge finished-badge">FT</span>
+                        <span class="badge bg-success">FT</span>
                     </div>
 
-                    <div class="fixture-teams">
-
-                        <div class="team-name">
+                    <div class="row align-items-center text-center g-2">
+                        <div class="col-4 fw-bold">
                             {{ data_get($fixture, 'teams.home.name', 'Home Team') }}
                         </div>
 
-                        <div class="fixture-score">
+                        <div class="col-4 fs-4 fw-bold">
                             {{ data_get($fixture, 'goals.home') }}
                             -
                             {{ data_get($fixture, 'goals.away') }}
                         </div>
 
-                        <div class="team-name">
+                        <div class="col-4 fw-bold">
                             {{ data_get($fixture, 'teams.away.name', 'Away Team') }}
                         </div>
-
                     </div>
 
-                    <div class="fixture-status">
-
+                    <div class="text-center text-secondary small mt-3">
                         {{ \Illuminate\Support\Carbon::parse(data_get($fixture, 'fixture.date'))
                             ->setTimezone('Europe/London')
                             ->format('d M Y, H:i') }}
-
                     </div>
 
                 </div>
+            </div>
 
-            @empty
+        @empty
 
-                <div class="empty-message">
-                    No finished matches available today.
-                </div>
+            <div class="alert alert-light border text-center">
+                No finished matches available today.
+            </div>
 
-            @endforelse
+        @endforelse
 
-        </section>
+    @endif
 
-    </div>
+</section>
 
-    <footer>
-        Football Hub - Your Football Information Website
-    </footer>
-
-</body>
-</html>
+@endsection

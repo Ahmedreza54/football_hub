@@ -19,23 +19,19 @@ class PlayerController extends Controller
 
     // Add a new player
     public function store(Request $request)
-    {
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'position' => 'required|string|max:255',
-            'team_id' => 'required|exists:teams,id',
-        ]);
+{
+    $validated = $request->validate([
+        'name' => 'required|string|max:255',
+        'position' => 'required|string|max:255',
+        'team_id' => 'required|exists:teams,id',
+    ]);
 
-        Player::create([
-            'name' => $request->name,
-            'position' => $request->position,
-            'team_id' => $request->team_id,
-        ]);
+    Player::create($validated);
 
-        return redirect()
-            ->route('players')
-            ->with('success', 'Player added successfully!');
-    }
+    return redirect()
+        ->route('players')
+        ->with('success', 'Player added successfully!');
+}
 
     // Delete a player
     public function destroy(Player $player)

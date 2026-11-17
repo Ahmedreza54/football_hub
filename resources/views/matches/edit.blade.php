@@ -1,171 +1,230 @@
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Edit Match - Football Hub</title>
+@extends('layouts.app')
 
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-</head>
+@section('title', 'Edit Match - Football Hub')
 
-<body class="bg-light">
+@section('content')
 
-<nav class="navbar navbar-dark bg-dark mb-4">
-    <div class="container">
-        <a class="navbar-brand" href="{{ route('home') }}">
-            Football Hub
-        </a>
+<div class="row justify-content-center">
 
-        <a href="{{ route('matches') }}" class="btn btn-outline-light">
-            Back to Matches
-        </a>
-    </div>
-</nav>
+    <div class="col-12 col-lg-8">
 
-<div class="container">
-    <div class="card shadow-sm mx-auto" style="max-width: 700px;">
-
-        <div class="card-header bg-primary text-white">
-            <h4 class="mb-0">Edit Match</h4>
+        <!-- Page heading -->
+        <div class="text-center mb-4">
+            <h1 class="fw-bold">Edit Match</h1>
+            <p class="text-secondary">
+                Update match information, date, venue and scores.
+            </p>
         </div>
 
-        <div class="card-body">
+        <!-- Edit form -->
+        <div class="card shadow-sm border-0">
 
-            @if ($errors->any())
-                <div class="alert alert-danger">
-                    <ul class="mb-0">
-                        @foreach ($errors->all() as $error)
-                            <li>{{ $error }}</li>
-                        @endforeach
-                    </ul>
-                </div>
-            @endif
+            <div class="card-header bg-primary text-white">
+                <h2 class="h5 mb-0">Match Details</h2>
+            </div>
 
-            <form action="{{ route('matches.update', $footballMatch->id) }}" method="POST">
-                @csrf
-                @method('PUT')
+            <div class="card-body">
 
-                <!-- Home Team -->
-                <div class="mb-3">
-                    <label class="form-label">Home Team</label>
+                <!-- Validation errors -->
+                @if($errors->any())
+                    <div class="alert alert-danger">
+                        <strong>Please correct the following errors:</strong>
 
-                    <select name="home_team_id" class="form-select" required>
-                        @foreach ($teams as $team)
-                            <option value="{{ $team->id }}"
-                                {{ old('home_team_id', $footballMatch->home_team_id) == $team->id ? 'selected' : '' }}>
-                                {{ $team->name }}
-                            </option>
-                        @endforeach
-                    </select>
-                </div>
+                        <ul class="mb-0 mt-2">
+                            @foreach($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                @endif
 
-                <!-- Away Team -->
-                <div class="mb-3">
-                    <label class="form-label">Away Team</label>
+                <form action="{{ route('matches.update', $footballMatch->id) }}"
+                      method="POST">
 
-                    <select name="away_team_id" class="form-select" required>
-                        @foreach ($teams as $team)
-                            <option value="{{ $team->id }}"
-                                {{ old('away_team_id', $footballMatch->away_team_id) == $team->id ? 'selected' : '' }}>
-                                {{ $team->name }}
-                            </option>
-                        @endforeach
-                    </select>
-                </div>
+                    @csrf
+                    @method('PUT')
 
-                <!-- Match Date and Time -->
-                <div class="mb-3">
-                    <label class="form-label">Match Date and Time</label>
+                    <!-- Home Team -->
+                    <div class="mb-3">
+                        <label for="home_team_id" class="form-label">
+                            Home Team
+                        </label>
 
-                    <input
-                        type="datetime-local"
-                        name="match_date"
-                        class="form-control"
-                        value="{{ old('match_date', \Carbon\Carbon::parse($footballMatch->match_date)->format('Y-m-d\TH:i')) }}"
-                        required
-                    >
-                </div>
+                        <select
+                            name="home_team_id"
+                            id="home_team_id"
+                            class="form-select @error('home_team_id') is-invalid @enderror"
+                            required
+                        >
+                            @foreach($teams as $team)
+                                <option value="{{ $team->id }}"
+                                    {{ old('home_team_id', $footballMatch->home_team_id) == $team->id ? 'selected' : '' }}>
+                                    {{ $team->name }}
+                                </option>
+                            @endforeach
+                        </select>
 
-                <!-- Venue -->
-                <div class="mb-3">
-                    <label class="form-label">Venue</label>
+                        @error('home_team_id')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
 
-                    <input
-                        type="text"
-                        name="venue"
-                        class="form-control"
-                        value="{{ old('venue', $footballMatch->venue) }}"
-                        required
-                    >
-                </div>
+                    <!-- Away Team -->
+                    <div class="mb-3">
+                        <label for="away_team_id" class="form-label">
+                            Away Team
+                        </label>
 
-                <!-- Status -->
-                <div class="mb-3">
-                    <label class="form-label">Status</label>
+                        <select
+                            name="away_team_id"
+                            id="away_team_id"
+                            class="form-select @error('away_team_id') is-invalid @enderror"
+                            required
+                        >
+                            @foreach($teams as $team)
+                                <option value="{{ $team->id }}"
+                                    {{ old('away_team_id', $footballMatch->away_team_id) == $team->id ? 'selected' : '' }}>
+                                    {{ $team->name }}
+                                </option>
+                            @endforeach
+                        </select>
 
-                    <select name="status" class="form-select" required>
-                        @foreach (['Scheduled', 'Completed', 'Postponed', 'Cancelled'] as $status)
-                            <option value="{{ $status }}"
-                                {{ old('status', $footballMatch->status) == $status ? 'selected' : '' }}>
-                                {{ $status }}
-                            </option>
-                        @endforeach
-                    </select>
-                </div>
+                        @error('away_team_id')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
 
-                <hr>
+                    <!-- Match Date -->
+                    <div class="mb-3">
+                        <label for="match_date" class="form-label">
+                            Match Date and Time
+                        </label>
 
-                <h5 class="mb-3">Match Scores</h5>
+                        <input
+                            type="datetime-local"
+                            name="match_date"
+                            id="match_date"
+                            class="form-control @error('match_date') is-invalid @enderror"
+                            value="{{ old('match_date', \Carbon\Carbon::parse($footballMatch->match_date)->format('Y-m-d\TH:i')) }}"
+                            required
+                        >
 
-                <!-- Home Team Score -->
-                <div class="mb-3">
-                    <label for="home_score" class="form-label">
-                        Home Team Score
-                    </label>
+                        @error('match_date')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
 
-                    <input
-                        type="number"
-                        name="home_score"
-                        id="home_score"
-                        class="form-control"
-                        min="0"
-                        value="{{ old('home_score', $footballMatch->home_score) }}"
-                        placeholder="Enter home team score"
-                    >
-                </div>
+                    <!-- Venue -->
+                    <div class="mb-3">
+                        <label for="venue" class="form-label">Venue</label>
 
-                <!-- Away Team Score -->
-                <div class="mb-3">
-                    <label for="away_score" class="form-label">
-                        Away Team Score
-                    </label>
+                        <input
+                            type="text"
+                            name="venue"
+                            id="venue"
+                            class="form-control @error('venue') is-invalid @enderror"
+                            value="{{ old('venue', $footballMatch->venue) }}"
+                            required
+                        >
 
-                    <input
-                        type="number"
-                        name="away_score"
-                        id="away_score"
-                        class="form-control"
-                        min="0"
-                        value="{{ old('away_score', $footballMatch->away_score) }}"
-                        placeholder="Enter away team score"
-                    >
-                </div>
+                        @error('venue')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
 
-                <!-- Buttons -->
-                <button type="submit" class="btn btn-primary">
-                    Save Changes
-                </button>
+                    <!-- Status -->
+                    <div class="mb-4">
+                        <label for="status" class="form-label">Status</label>
 
-                <a href="{{ route('matches') }}" class="btn btn-secondary">
-                    Cancel
-                </a>
+                        <select
+                            name="status"
+                            id="status"
+                            class="form-select @error('status') is-invalid @enderror"
+                            required
+                        >
+                            @foreach(['Scheduled', 'Completed', 'Postponed', 'Cancelled'] as $status)
+                                <option value="{{ $status }}"
+                                    {{ old('status', $footballMatch->status) == $status ? 'selected' : '' }}>
+                                    {{ $status }}
+                                </option>
+                            @endforeach
+                        </select>
 
-            </form>
+                        @error('status')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
 
+                    <hr>
+
+                    <!-- Match Scores -->
+                    <h2 class="h5 mb-3">Match Scores</h2>
+
+                    <div class="row g-3 mb-4">
+
+                        <div class="col-12 col-md-6">
+                            <label for="home_score" class="form-label">
+                                Home Team Score
+                            </label>
+
+                            <input
+                                type="number"
+                                name="home_score"
+                                id="home_score"
+                                class="form-control @error('home_score') is-invalid @enderror"
+                                min="0"
+                                value="{{ old('home_score', $footballMatch->home_score) }}"
+                                placeholder="Enter home team score"
+                            >
+
+                            @error('home_score')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+
+                        <div class="col-12 col-md-6">
+                            <label for="away_score" class="form-label">
+                                Away Team Score
+                            </label>
+
+                            <input
+                                type="number"
+                                name="away_score"
+                                id="away_score"
+                                class="form-control @error('away_score') is-invalid @enderror"
+                                min="0"
+                                value="{{ old('away_score', $footballMatch->away_score) }}"
+                                placeholder="Enter away team score"
+                            >
+
+                            @error('away_score')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+
+                    </div>
+
+                    <!-- Buttons -->
+                    <div class="d-flex flex-wrap gap-2">
+
+                        <button type="submit" class="btn btn-primary">
+                            Save Changes
+                        </button>
+
+                        <a href="{{ route('matches') }}"
+                           class="btn btn-secondary">
+                            Cancel
+                        </a>
+
+                    </div>
+
+                </form>
+
+            </div>
         </div>
+
     </div>
 </div>
 
-</body>
-</html>
+@endsection
