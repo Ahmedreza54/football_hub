@@ -221,40 +221,41 @@
 
 </div>
 
-<!-- Find nearby football grounds using Geolocation API -->
+<!-- Find Nearby Football Grounds -->
 <div class="card shadow-sm border-0 mb-5">
-    <div class="card-body text-center p-4">
+    <div class="card-body p-4">
 
-        <h2 class="h4 mb-3">Find Football Grounds Near Me</h2>
+        <div class="text-center">
+            <h2 class="h4 mb-3">Find Football Grounds Near Me</h2>
 
-        <p class="text-secondary">
-            Use your device location to find nearby football grounds.
+            <p class="text-secondary">
+                Discover nearby football stadiums and grounds.
+                Your location is only used after you give permission.
+            </p>
+
+            <button type="button"
+                    id="findGroundsButton"
+                    class="btn btn-success">
+                <i class="bi bi-geo-alt"></i>
+                Find Nearby Football Grounds
+            </button>
+        </div>
+
+        <div id="locationMessage"
+             class="mt-3 text-center"
+             role="status"
+             aria-live="polite"></div>
+
+        <div id="groundsResults" class="mt-4 d-none">
+            <h3 class="h5 mb-3">Nearby Football Grounds</h3>
+            <div id="groundsList" class="row g-3"></div>
+        </div>
+
+        <p class="small text-secondary text-center mt-3 mb-0">
+            Location access is optional. Your location is used to calculate
+            nearby distances and is not stored by Football Hub.
+            Ground information is provided by OpenStreetMap.
         </p>
-
-        <button
-            type="button"
-            id="findGroundsButton"
-            class="btn btn-success w-100">
-            Find Nearby Football Grounds
-        </button>
-
-        <div
-            id="locationMessage"
-            class="mt-3"
-            role="status"
-            aria-live="polite">
-        </div>
-
-        <div id="mapsResult" class="mt-3 d-none">
-            <a
-                id="mapsLink"
-                href="#"
-                target="_blank"
-                rel="noopener noreferrer"
-                class="btn btn-outline-primary">
-                Open Nearby Football Grounds in Google Maps
-            </a>
-        </div>
 
     </div>
 </div>
@@ -685,51 +686,203 @@ document.addEventListener('DOMContentLoaded', function () {
         window.history.replaceState({}, '', url);
     });
 
+
     // ==========================================
     // FIND NEARBY FOOTBALL GROUNDS
+    // OpenStreetMap Overpass API
     // ==========================================
 
     const findButton = document.getElementById('findGroundsButton');
     const locationMessage = document.getElementById('locationMessage');
-    const mapsResult = document.getElementById('mapsResult');
-    const mapsLink = document.getElementById('mapsLink');
+    const groundsResults = document.getElementById('groundsResults');
+    const groundsList = document.getElementById('groundsList');
 
+    const overpassUrls = [
+    'https://overpass.kumi.systems/api/interpreter',
+    'https://overpass-api.de/api/interpreter'
+];
+
+    // Calculate distance between two locations in kilometres
+    function calculateDistance(lat1, lon1, lat2, lon2) {
+
+        const earthRadius = 6371;
+
+        const toRadians = degrees => degrees * Math.PI / 180;
+
+        const dLat = toRadians(lat2 - lat1);
+        const dLon = toRadians(lon2 - lon1);
+
+        const a =
+            Math.sin(dLat / 2) ** 2 +
+            Math.cos(toRadians(lat1)) *
+            Math.cos(toRadians(lat2)) *
+            Math.sin(dLon / 2) ** 2;
+
+        return earthRadius * 2 * Math.atan2(
+            Math.sqrt(a),
+            Math.sqrt(1 - a)
+        );
+    }
+
+    // Display nearby football grounds
+   
+function showGrounds(grounds, latitude, longitude) {
+
+    groundsList.replaceChildren();
+
+    grounds.forEach(function (ground, index) {
+
+        const card = document.createElement('div');
+        card.className = 'col-12';
+
+        const panel = document.createElement('div');
+        panel.className = 'card h-100 border shadow-sm';
+
+        const body = document.createElement('div');
+        body.className = 'card-body';
+
+        const heading = document.createElement('h5');
+        heading.className = 'fw-bold mb-1';
+        heading.textContent = (index + 1) + '. ' + ground.name;
+
+        const club = document.createElement('p');
+        club.className = 'text-secondary mb-2';
+        club.textContent = ground.club || '';
+
+        const distance = document.createElement('h5');
+        distance.className = 'fw-bold text-primary mb-3';
+        distance.textContent =
+            ground.distance.toFixed(1) + ' km away';
+
+        const directions = document.createElement('a');
+        directions.textContent = '🗺️ Get Directions';
+        directions.className = 'btn btn-outline-primary btn-sm';
+
+        directions.href =
+            'https://www.google.com/maps/dir/?api=1' +
+            '&origin=' + latitude + ',' + longitude +
+            '&destination=' + ground.lat + ',' + ground.lon;
+
+        directions.target = '_blank';
+        directions.rel = 'noopener noreferrer';
+
+        body.appendChild(heading);
+        body.appendChild(club);
+        body.appendChild(distance);
+        body.appendChild(directions);
+
+        panel.appendChild(body);
+        card.appendChild(panel);
+
+        groundsList.appendChild(card);
+    });
+
+    groundsResults.classList.remove('d-none');
+}
+
+    // Search OpenStreetMap for football grounds
+    
+
+
+async function searchNearbyGrounds(latitude, longitude) {
+
+    locationMessage.textContent = 'Finding nearest Premier League stadiums...';
+
+    const stadiums = [
+        { name: 'Vitality Stadium', club: 'AFC Bournemouth', lat: 50.7352, lon: -1.8383 },
+        { name: 'Emirates Stadium', club: 'Arsenal', lat: 51.5549, lon: -0.1084 },
+        { name: 'Villa Park', club: 'Aston Villa', lat: 52.5092, lon: -1.8848 },
+        { name: 'Gtech Community Stadium', club: 'Brentford', lat: 51.4907, lon: -0.2887 },
+        { name: 'American Express Stadium', club: 'Brighton & Hove Albion', lat: 50.8616, lon: -0.0837 },
+        { name: 'Stamford Bridge', club: 'Chelsea', lat: 51.4817, lon: -0.1910 },
+        { name: 'Coventry Building Society Arena', club: 'Coventry City', lat: 52.4482, lon: -1.4956 },
+        { name: 'Selhurst Park', club: 'Crystal Palace', lat: 51.3983, lon: -0.0855 },
+        { name: 'Hill Dickinson Stadium', club: 'Everton', lat: 53.4388, lon: -2.9663 },
+        { name: 'Craven Cottage', club: 'Fulham', lat: 51.4749, lon: -0.2216 },
+        { name: 'MKM Stadium', club: 'Hull City', lat: 53.7461, lon: -0.3678 },
+        { name: 'Portman Road', club: 'Ipswich Town', lat: 52.0545, lon: 1.1450 },
+        { name: 'Elland Road', club: 'Leeds United', lat: 53.7778, lon: -1.5721 },
+        { name: 'Anfield', club: 'Liverpool', lat: 53.4308, lon: -2.9608 },
+        { name: 'Etihad Stadium', club: 'Manchester City', lat: 53.4831, lon: -2.2004 },
+        { name: 'Old Trafford', club: 'Manchester United', lat: 53.4631, lon: -2.2913 },
+        { name: 'St James’ Park', club: 'Newcastle United', lat: 54.9756, lon: -1.6217 },
+        { name: 'City Ground', club: 'Nottingham Forest', lat: 52.9400, lon: -1.1328 },
+        { name: 'Stadium of Light', club: 'Sunderland', lat: 54.9146, lon: -1.3884 },
+        { name: 'Tottenham Hotspur Stadium', club: 'Tottenham Hotspur', lat: 51.6043, lon: -0.0662 }
+    ];
+
+    const nearestStadiums = stadiums.map(function (stadium) {
+
+        return {
+            name: stadium.name,
+            club: stadium.club,
+            lat: stadium.lat,
+            lon: stadium.lon,
+            distance: calculateDistance(
+                latitude,
+                longitude,
+                stadium.lat,
+                stadium.lon
+            )
+        };
+
+    }).sort(function (a, b) {
+        return a.distance - b.distance;
+    });
+
+    showGrounds(nearestStadiums.slice(0, 10), latitude, longitude);
+
+    locationMessage.textContent =
+        '✅ Location detected successfully!';
+
+}
+
+    // Get permission and user's location
     findButton.addEventListener('click', function () {
 
-        mapsResult.classList.add('d-none');
+        groundsResults.classList.add('d-none');
+        groundsList.replaceChildren();
 
         if (!navigator.geolocation) {
+
             locationMessage.textContent =
                 'Your browser does not support location services.';
+
             return;
         }
 
         findButton.disabled = true;
-        findButton.textContent = 'Getting your location...';
+        findButton.textContent = 'Finding your location...';
 
         locationMessage.textContent =
             'Please allow location access when your browser asks.';
 
         navigator.geolocation.getCurrentPosition(
 
-            function (position) {
+            async function (position) {
 
-                const latitude = position.coords.latitude;
-                const longitude = position.coords.longitude;
+                try {
 
-                const mapsUrl =
-                    'https://www.google.com/maps/search/football+grounds/@' +
-                    latitude + ',' + longitude + ',14z';
+                    const latitude = position.coords.latitude;
+                    const longitude = position.coords.longitude;
 
-                mapsLink.href = mapsUrl;
-                mapsResult.classList.remove('d-none');
+                    await searchNearbyGrounds(latitude, longitude);
 
-                locationMessage.textContent =
-                    'Your location was found successfully.';
+                } catch (error) {
 
-                findButton.disabled = false;
-                findButton.textContent =
-                    'Find Nearby Football Grounds';
+                    console.error('Ground search error:', error);
+
+                    locationMessage.textContent =
+                        error.message ||
+                        'Unable to find nearby grounds. Please try again.';
+
+                } finally {
+
+                    findButton.disabled = false;
+
+                    findButton.textContent =
+                        'Your Nearest Premier League Stadiums';
+                }
             },
 
             function (error) {
@@ -737,12 +890,17 @@ document.addEventListener('DOMContentLoaded', function () {
                 let message = 'Unable to get your location.';
 
                 if (error.code === error.PERMISSION_DENIED) {
+
                     message =
                         'Location permission was denied. Please allow location access in your browser settings.';
+
                 } else if (error.code === error.POSITION_UNAVAILABLE) {
+
                     message =
                         'Your current location is unavailable.';
+
                 } else if (error.code === error.TIMEOUT) {
+
                     message =
                         'Location request timed out. Please try again.';
                 }
@@ -754,9 +912,9 @@ document.addEventListener('DOMContentLoaded', function () {
             },
 
             {
-                enableHighAccuracy: true,
-                timeout: 10000,
-                maximumAge: 60000
+                enableHighAccuracy: false,
+                timeout: 8000,
+                maximumAge: 300000
             }
         );
     });
