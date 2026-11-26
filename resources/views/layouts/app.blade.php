@@ -1,8 +1,11 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <meta name="theme-color" content="#212529">
 
     <title>@yield('title', 'Football Hub')</title>
 
@@ -11,7 +14,7 @@
           rel="stylesheet">
 </head>
 
-<body class="bg-light">
+<body class="bg-light min-vh-100 d-flex flex-column">
 
     <!-- Navigation -->
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
@@ -52,15 +55,19 @@
     </nav>
 
     <!-- Main content -->
-    <main class="container py-4">
+    <main class="container py-4 flex-grow-1">
 
         @yield('content')
 
     </main>
 
     <!-- Footer -->
-    <footer class="bg-dark text-white text-center py-3 mt-4">
-        <p class="mb-0">Football Hub - Your Football Information Website</p>
+    <footer class="bg-dark text-white text-center py-3 mt-auto">
+        <div class="container">
+            <p class="mb-0 small">
+                Football Hub - Your Football Information Website
+            </p>
+        </div>
     </footer>
 
     <!-- Bootstrap 5.3.3 JavaScript -->

@@ -1,3 +1,4 @@
+
 <?php
 
 use Illuminate\Support\Facades\Route;
@@ -26,6 +27,9 @@ Route::delete('/teams/{team}', [TeamController::class, 'destroy'])
 
 Route::get('/players', [PlayerController::class, 'index'])
     ->name('players');
+
+Route::get('/players/{player}', [PlayerController::class, 'show'])
+    ->name('players.show');
 
 Route::post('/players', [PlayerController::class, 'store'])
     ->name('players.store');

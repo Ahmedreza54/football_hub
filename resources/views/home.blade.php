@@ -207,6 +207,44 @@
 
 </div>
 
+<!-- Find nearby football grounds using Geolocation API -->
+<div class="card shadow-sm border-0 mb-5">
+    <div class="card-body text-center p-4">
+
+        <h2 class="h4 mb-3">Find Football Grounds Near Me</h2>
+
+        <p class="text-secondary">
+            Use your device location to find nearby football grounds.
+        </p>
+
+        <button
+            type="button"
+            id="findGroundsButton"
+            class="btn btn-success w-100">
+            Find Nearby Football Grounds
+        </button>
+
+        <div
+            id="locationMessage"
+            class="mt-3"
+            role="status"
+            aria-live="polite">
+        </div>
+
+        <div id="mapsResult" class="mt-3 d-none">
+            <a
+                id="mapsLink"
+                href="#"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="btn btn-outline-primary">
+                Open Nearby Football Grounds in Google Maps
+            </a>
+        </div>
+
+    </div>
+</div>
+
 <!-- Football API fixtures -->
 <section class="mb-5">
 
@@ -375,4 +413,83 @@
 
 </section>
 
+@endsection
+
+@section('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+
+    const findButton = document.getElementById('findGroundsButton');
+    const locationMessage = document.getElementById('locationMessage');
+    const mapsResult = document.getElementById('mapsResult');
+    const mapsLink = document.getElementById('mapsLink');
+
+    findButton.addEventListener('click', function () {
+
+        mapsResult.classList.add('d-none');
+
+        if (!navigator.geolocation) {
+            locationMessage.textContent =
+                'Your browser does not support location services.';
+            return;
+        }
+
+        findButton.disabled = true;
+        findButton.textContent = 'Getting your location...';
+
+        locationMessage.textContent =
+            'Please allow location access when your browser asks.';
+
+        navigator.geolocation.getCurrentPosition(
+
+            function (position) {
+
+                const latitude = position.coords.latitude;
+                const longitude = position.coords.longitude;
+
+                const mapsUrl =
+                    'https://www.google.com/maps/search/football+grounds/@' +
+                    latitude + ',' + longitude + ',14z';
+
+                mapsLink.href = mapsUrl;
+                mapsResult.classList.remove('d-none');
+
+                locationMessage.textContent =
+                    'Your location was found successfully.';
+
+                findButton.disabled = false;
+                findButton.textContent =
+                    'Find Nearby Football Grounds';
+            },
+
+            function (error) {
+
+                let message = 'Unable to get your location.';
+
+                if (error.code === error.PERMISSION_DENIED) {
+                    message =
+                        'Location permission was denied. Please allow location access in your browser settings.';
+                } else if (error.code === error.POSITION_UNAVAILABLE) {
+                    message =
+                        'Your current location is unavailable.';
+                } else if (error.code === error.TIMEOUT) {
+                    message =
+                        'Location request timed out. Please try again.';
+                }
+
+                locationMessage.textContent = message;
+
+                findButton.disabled = false;
+                findButton.textContent = 'Try Again';
+            },
+
+            {
+                enableHighAccuracy: true,
+                timeout: 10000,
+                maximumAge: 60000
+            }
+        );
+    });
+});
+</script>
 @endsection

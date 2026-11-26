@@ -31,7 +31,16 @@ class FootballMatchController extends Controller
             'away_score' => 'nullable|integer|min:0',
         ]);
 
-        FootballMatch::create($validated);
+        $match = FootballMatch::create($validated);
+
+        if ($request->expectsJson()) {
+            $match->load(['homeTeam', 'awayTeam']);
+
+            return response()->json([
+                'message' => 'Match added successfully!',
+                'match' => $match,
+            ], 201);
+        }
 
         return redirect()
             ->route('matches')
@@ -64,12 +73,21 @@ class FootballMatchController extends Controller
             ->with('success', 'Match updated successfully!');
     }
 
-    public function destroy(FootballMatch $footballMatch)
-    {
-        $footballMatch->delete();
+   public function destroy(Request $request, FootballMatch $footballMatch)
+{
+    $matchId = $footballMatch->id;
 
-        return redirect()
-            ->route('matches')
-            ->with('success', 'Match deleted successfully!');
+    $footballMatch->delete();
+
+    if ($request->expectsJson()) {
+        return response()->json([
+            'message' => 'Match deleted successfully!',
+            'id' => $matchId,
+        ]);
     }
+
+    return redirect()
+        ->route('matches')
+        ->with('success', 'Match deleted successfully!');
+}
 }
