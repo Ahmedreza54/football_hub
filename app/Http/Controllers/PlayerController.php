@@ -5,41 +5,16 @@ namespace App\Http\Controllers;
 use App\Models\Player;
 use App\Models\Team;
 use Illuminate\Http\Request;
-use BaconQrCode\Writer;
-use BaconQrCode\Renderer\ImageRenderer;
-use BaconQrCode\Renderer\Image\SvgImageBackEnd;
-use BaconQrCode\Renderer\RendererStyle\RendererStyle;
 
 class PlayerController extends Controller
 {
-    // Show all players with their QR codes
+    // Show all players
     public function index()
     {
         $players = Player::with('team')->get();
         $teams = Team::all();
 
-        $writer = new Writer(
-            new ImageRenderer(
-                new RendererStyle(250),
-                new SvgImageBackEnd()
-            )
-        );
-
-        $playerQrCodes = [];
-
-        foreach ($players as $player) {
-            $profileUrl = route('players.show', $player, true);
-
-            $qrCode = $writer->writeString($profileUrl);
-
-            $playerQrCodes[$player->id] = base64_encode($qrCode);
-        }
-
-        return view('players', compact(
-            'players',
-            'teams',
-            'playerQrCodes'
-        ));
+        return view('players', compact('players', 'teams'));
     }
 
     // Show individual player profile
@@ -63,7 +38,7 @@ class PlayerController extends Controller
 
         return redirect()
             ->route('players')
-            ->with('success', 'Player added successfully! QR code generated.');
+            ->with('success', 'Player added successfully!');
     }
 
     // Delete a player

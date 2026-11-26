@@ -120,28 +120,6 @@
                         {{ $player->team->name ?? 'No team' }}
                     </p>
 
-                    <!-- Player QR Code -->
-                    <div class="border rounded p-3 mb-3">
-                        <h4 class="h6 mb-2">Player QR Code</h4>
-
-                        @if(isset($playerQrCodes[$player->id]))
-                            <img
-                                src="data:image/svg+xml;base64,{{ $playerQrCodes[$player->id] }}"
-                                alt="QR code for {{ $player->name }}"
-                                class="img-fluid"
-                                style="width: 160px; height: 160px;"
-                            >
-
-                            <p class="small text-muted mb-0 mt-2">
-                                Scan to open {{ $player->name }}'s profile.
-                            </p>
-                        @else
-                            <p class="small text-muted mb-0">
-                                QR code is not available.
-                            </p>
-                        @endif
-                    </div>
-
                     <!-- Delete player -->
                     <form
                         action="{{ route('players.destroy', $player) }}"
