@@ -14,6 +14,55 @@ class HomeController extends Controller
 {
     public function index(Request $request, FootballApiService $footballApi)
     {
+        // Handle AJAX live search requests
+        if ($request->expectsJson()) {
+
+            $search = trim($request->query('search', ''));
+
+            $teamResults = collect();
+            $playerResults = collect();
+
+            if ($search !== '') {
+
+                // Search teams by name or country
+                $teamResults = Team::where('name', 'like', "%{$search}%")
+                    ->orWhere('country', 'like', "%{$search}%")
+                    ->orderBy('name')
+                    ->limit(10)
+                    ->get();
+
+                // Search players by name or position
+                $playerResults = Player::with('team')
+                    ->where(function ($query) use ($search) {
+                        $query->where('name', 'like', "%{$search}%")
+                            ->orWhere('position', 'like', "%{$search}%");
+                    })
+                    ->orderBy('name')
+                    ->limit(10)
+                    ->get();
+            }
+
+            // Return matching results as JSON
+            return response()->json([
+                'teams' => $teamResults->map(function ($team) {
+                    return [
+                        'id' => $team->id,
+                        'name' => $team->name,
+                        'country' => $team->country,
+                    ];
+                })->values(),
+
+                'players' => $playerResults->map(function ($player) {
+                    return [
+                        'id' => $player->id,
+                        'name' => $player->name,
+                        'position' => $player->position,
+                        'team' => $player->team?->name,
+                    ];
+                })->values(),
+            ]);
+        }
+
         // Default API values
         $fixtures = [];
         $apiAvailable = false;
@@ -88,7 +137,7 @@ class HomeController extends Controller
             ->whereNotNull('away_score')
             ->count();
 
-        // Search teams and players
+        // Normal dashboard search (when JavaScript is unavailable)
         $search = trim($request->query('search', ''));
 
         $teamResults = collect();

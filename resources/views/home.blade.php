@@ -15,22 +15,23 @@
     </div>
 </div>
 
-<!-- Search section -->
+<!-- AJAX Search section -->
 <div class="card shadow-sm border-0 mb-4">
     <div class="card-body">
         <h2 class="h4 text-center mb-4">Search Football Hub</h2>
 
-        <form action="{{ route('home') }}" method="GET"
+        <form id="dashboardSearchForm"
               class="row g-2 justify-content-center">
 
             <div class="col-12 col-md-7">
                 <input
                     type="search"
-                    name="search"
+                    id="dashboardSearchInput"
                     class="form-control"
                     placeholder="Search for a team or player..."
                     value="{{ $search }}"
-                    aria-label="Search teams and players">
+                    aria-label="Search teams and players"
+                    autocomplete="off">
             </div>
 
             <div class="col-6 col-md-auto">
@@ -39,64 +40,77 @@
                 </button>
             </div>
 
-            @if($search !== '')
-                <div class="col-6 col-md-auto">
-                    <a href="{{ route('home') }}"
-                       class="btn btn-secondary w-100">
-                        Clear Search
-                    </a>
-                </div>
-            @endif
+            <div class="col-6 col-md-auto">
+                <button type="button"
+                        id="clearDashboardSearch"
+                        class="btn btn-secondary w-100">
+                    Clear Search
+                </button>
+            </div>
         </form>
 
-        @if($search !== '')
-            <h3 class="h5 mt-4">
-                Search results for "{{ $search }}"
-            </h3>
+        <div id="dashboardSearchLoading"
+             class="text-center text-secondary mt-3 d-none"
+             role="status">
+            Searching...
+        </div>
 
-            @if($teamResults->isEmpty() && $playerResults->isEmpty())
-                <div class="alert alert-warning mt-3">
-                    No teams or players found. Please try another search.
-                </div>
-            @endif
+        <div id="dashboardSearchResults"
+             class="mt-3"
+             aria-live="polite">
 
-            @foreach($teamResults as $team)
-                <div class="alert alert-light border mt-3">
-                    <strong>Team:</strong> {{ $team->name }}
+            {{-- Server-rendered results remain available if JavaScript is disabled --}}
+            @if($search !== '')
 
-                    @if($team->country)
-                        — {{ $team->country }}
-                    @endif
+                <h3 class="h5 mt-4">
+                    Search results for "{{ $search }}"
+                </h3>
 
-                    <div class="mt-2">
-                        <a href="{{ route('teams') }}"
-                           class="btn btn-sm btn-outline-primary">
-                            View Teams
-                        </a>
+                @if($teamResults->isEmpty() && $playerResults->isEmpty())
+                    <div class="alert alert-warning mt-3">
+                        No teams or players found. Please try another search.
                     </div>
-                </div>
-            @endforeach
+                @endif
 
-            @foreach($playerResults as $player)
-                <div class="alert alert-light border mt-3">
-                    <strong>Player:</strong>
-                    {{ $player->name }} — {{ $player->position }}
+                @foreach($teamResults as $team)
+                    <div class="alert alert-light border mt-3">
+                        <strong>Team:</strong> {{ $team->name }}
 
-                    @if($player->team)
-                        <div class="small text-secondary mt-1">
-                            Team: {{ $player->team->name }}
+                        @if($team->country)
+                            — {{ $team->country }}
+                        @endif
+
+                        <div class="mt-2">
+                            <a href="{{ route('teams') }}"
+                               class="btn btn-sm btn-outline-primary">
+                                View Teams
+                            </a>
                         </div>
-                    @endif
-
-                    <div class="mt-2">
-                        <a href="{{ route('players') }}"
-                           class="btn btn-sm btn-outline-primary">
-                            View Players
-                        </a>
                     </div>
-                </div>
-            @endforeach
-        @endif
+                @endforeach
+
+                @foreach($playerResults as $player)
+                    <div class="alert alert-light border mt-3">
+                        <strong>Player:</strong>
+                        {{ $player->name }} — {{ $player->position }}
+
+                        @if($player->team)
+                            <div class="small text-secondary mt-1">
+                                Team: {{ $player->team->name }}
+                            </div>
+                        @endif
+
+                        <div class="mt-2">
+                            <a href="{{ route('players') }}"
+                               class="btn btn-sm btn-outline-primary">
+                                View Players
+                            </a>
+                        </div>
+                    </div>
+                @endforeach
+
+            @endif
+        </div>
     </div>
 </div>
 
@@ -250,7 +264,6 @@
 
     @if(!$apiAvailable)
 
-        <!-- API error message -->
         <div class="alert alert-warning text-center mb-4" role="alert">
             <h4 class="alert-heading">
                 <i class="bi bi-exclamation-triangle"></i>
@@ -419,6 +432,263 @@
 <script>
 document.addEventListener('DOMContentLoaded', function () {
 
+    // ==========================================
+    // AJAX / FETCH LIVE DASHBOARD SEARCH
+    // ==========================================
+
+    const searchForm = document.getElementById('dashboardSearchForm');
+    const searchInput = document.getElementById('dashboardSearchInput');
+    const searchResults = document.getElementById('dashboardSearchResults');
+    const loadingMessage = document.getElementById('dashboardSearchLoading');
+    const clearButton = document.getElementById('clearDashboardSearch');
+
+    let searchTimer;
+    let currentController = null;
+
+    // Safely create an HTML element with text
+    function createTextElement(tag, text, className = '') {
+        const element = document.createElement(tag);
+        element.textContent = text ?? '';
+
+        if (className) {
+            element.className = className;
+        }
+
+        return element;
+    }
+
+    // Display search results
+    function displaySearchResults(data, searchTerm) {
+
+        searchResults.replaceChildren();
+
+        const teams = data.teams || [];
+        const players = data.players || [];
+
+        const heading = createTextElement(
+            'h3',
+            'Search results for "' + searchTerm + '"',
+            'h5 mt-4'
+        );
+
+        searchResults.appendChild(heading);
+
+        if (teams.length === 0 && players.length === 0) {
+            const message = createTextElement(
+                'div',
+                'No teams or players found. Please try another search.',
+                'alert alert-warning mt-3'
+            );
+
+            searchResults.appendChild(message);
+            return;
+        }
+
+        // Display matching teams
+        teams.forEach(function (team) {
+
+            const card = createTextElement(
+                'div',
+                '',
+                'alert alert-light border mt-3'
+            );
+
+            const title = createTextElement(
+                'strong',
+                'Team: ' + team.name
+            );
+
+            card.appendChild(title);
+
+            if (team.country) {
+                card.appendChild(
+                    document.createTextNode(' — ' + team.country)
+                );
+            }
+
+            const buttonContainer = createTextElement(
+                'div',
+                '',
+                'mt-2'
+            );
+
+            const link = createTextElement(
+                'a',
+                'View Teams',
+                'btn btn-sm btn-outline-primary'
+            );
+
+            link.href = @json(route('teams'));
+
+            buttonContainer.appendChild(link);
+            card.appendChild(buttonContainer);
+            searchResults.appendChild(card);
+        });
+
+        // Display matching players
+        players.forEach(function (player) {
+
+            const card = createTextElement(
+                'div',
+                '',
+                'alert alert-light border mt-3'
+            );
+
+            const title = createTextElement(
+                'strong',
+                'Player: '
+            );
+
+            card.appendChild(title);
+
+            card.appendChild(
+                document.createTextNode(
+                    player.name + ' — ' + (player.position || '')
+                )
+            );
+
+            if (player.team) {
+                const teamInfo = createTextElement(
+                    'div',
+                    'Team: ' + player.team,
+                    'small text-secondary mt-1'
+                );
+
+                card.appendChild(teamInfo);
+            }
+
+            const buttonContainer = createTextElement(
+                'div',
+                '',
+                'mt-2'
+            );
+
+            const link = createTextElement(
+                'a',
+                'View Players',
+                'btn btn-sm btn-outline-primary'
+            );
+
+            link.href = @json(route('players'));
+
+            buttonContainer.appendChild(link);
+            card.appendChild(buttonContainer);
+            searchResults.appendChild(card);
+        });
+    }
+
+    // Send search request using Fetch API
+    async function performSearch() {
+
+        const searchTerm = searchInput.value.trim();
+
+        // Cancel any previous request
+        if (currentController) {
+            currentController.abort();
+        }
+
+        if (searchTerm === '') {
+            searchResults.replaceChildren();
+            loadingMessage.classList.add('d-none');
+            return;
+        }
+
+        currentController = new AbortController();
+
+        loadingMessage.classList.remove('d-none');
+
+        try {
+
+            const url = new URL(
+                @json(route('home')),
+                window.location.origin
+            );
+
+            url.searchParams.set('search', searchTerm);
+
+            const response = await fetch(url, {
+                method: 'GET',
+                headers: {
+                    'Accept': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                signal: currentController.signal
+            });
+
+            if (!response.ok) {
+                throw new Error('Search request failed.');
+            }
+
+            const data = await response.json();
+
+            // Do not display outdated search results
+            if (searchInput.value.trim() === searchTerm) {
+                displaySearchResults(data, searchTerm);
+            }
+
+        } catch (error) {
+
+            if (error.name !== 'AbortError') {
+                searchResults.replaceChildren();
+
+                const message = createTextElement(
+                    'div',
+                    'Something went wrong. Please try searching again.',
+                    'alert alert-danger mt-3'
+                );
+
+                searchResults.appendChild(message);
+            }
+
+        } finally {
+            loadingMessage.classList.add('d-none');
+        }
+    }
+
+    // Search automatically while typing
+    searchInput.addEventListener('input', function () {
+
+        clearTimeout(searchTimer);
+
+        searchTimer = setTimeout(function () {
+            performSearch();
+        }, 300);
+    });
+
+    // Handle Search button
+    searchForm.addEventListener('submit', function (event) {
+
+        event.preventDefault();
+
+        clearTimeout(searchTimer);
+        performSearch();
+    });
+
+    // Clear search
+    clearButton.addEventListener('click', function () {
+
+        clearTimeout(searchTimer);
+
+        if (currentController) {
+            currentController.abort();
+        }
+
+        searchInput.value = '';
+        searchResults.replaceChildren();
+        loadingMessage.classList.add('d-none');
+
+        searchInput.focus();
+
+        const url = new URL(window.location.href);
+        url.searchParams.delete('search');
+
+        window.history.replaceState({}, '', url);
+    });
+
+    // ==========================================
+    // FIND NEARBY FOOTBALL GROUNDS
+    // ==========================================
+
     const findButton = document.getElementById('findGroundsButton');
     const locationMessage = document.getElementById('locationMessage');
     const mapsResult = document.getElementById('mapsResult');
@@ -490,6 +760,7 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         );
     });
+
 });
 </script>
 @endsection
