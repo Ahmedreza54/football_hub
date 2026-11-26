@@ -7,28 +7,45 @@ use Illuminate\Http\Request;
 
 class TeamController extends Controller
 {
-    // Show all teams
-    public function index()
+    // Show all teams and handle AJAX search
+    public function index(Request $request)
     {
-        $teams = Team::latest()->get();
+        $search = trim($request->query('search', ''));
 
-        return view('teams', compact('teams'));
+        $teams = Team::query()
+            ->when($search !== '', function ($query) use ($search) {
+                $query->where(function ($query) use ($search) {
+                    $query->where('name', 'like', "%{$search}%")
+                        ->orWhere('country', 'like', "%{$search}%");
+                });
+            })
+            ->latest()
+            ->get();
+
+        // Return JSON for AJAX / Fetch requests
+        if ($request->expectsJson()) {
+            return response()->json([
+                'teams' => $teams,
+            ]);
+        }
+
+        return view('teams', compact('teams', 'search'));
     }
 
     // Add a new team
     public function store(Request $request)
-{
-    $validated = $request->validate([
-        'name' => 'required|string|max:255',
-        'country' => 'required|string|max:255',
-    ]);
+    {
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'country' => 'required|string|max:255',
+        ]);
 
-    Team::create($validated);
+        Team::create($validated);
 
-    return redirect()
-        ->route('teams')
-        ->with('success', 'Team added successfully!');
-}
+        return redirect()
+            ->route('teams')
+            ->with('success', 'Team added successfully!');
+    }
 
     // Delete a team
     public function destroy(Team $team)
